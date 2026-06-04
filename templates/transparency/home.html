@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+{% block title %}Home - Disaster Relief Kerala{% endblock %}
+{% block content %}
+
+<!-- Hero Section -->
+<div class="hero-section">
+  <div class="container text-white text-center">
+    <div class="mb-4">
+      <span style="background:rgba(231,76,60,0.8);padding:8px 20px;border-radius:20px;font-size:0.9rem;font-weight:600;letter-spacing:1px">
+        🆘 KERALA DISASTER RELIEF 2026
+      </span>
+    </div>
+    <h1 style="font-size:4rem;font-weight:900;line-height:1.1;margin-bottom:20px;text-shadow:0 2px 10px rgba(0,0,0,0.3)">
+       Be the light in someone's<br>
+      <span style="color:#fca5a5">Darkest hours</span>
+    </h1>
+    <p style="font-size:1.2rem;opacity:0.9;max-width:580px;margin:0 auto 40px;line-height:1.7">
+      Join thousands of donors—support disaster relief today.. 100% transparent — every rupee tracked publicly.
+    </p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap mb-5">
+      <a href="{% url 'money_donate' %}" class="btn btn-lg px-5 py-3 fw-bold" style="background:white;color:#e74c3c;border-radius:50px;box-shadow:0 4px 20px rgba(0,0,0,0.2);font-size:1.1rem">
+        <i class="fas fa-hand-holding-usd me-2"></i>Donate Now
+      </a>
+      <a href="{% url 'volunteer_register' %}" class="btn btn-lg px-5 py-3 fw-bold" style="background:transparent;color:white;border:2px solid rgba(255,255,255,0.7);border-radius:50px;font-size:1.1rem">
+        <i class="fas fa-hands-helping me-2"></i>Volunteer
+      </a>
+    </div>
+
+    <!-- Live Stats -->
+    <div class="d-flex gap-5 justify-content-center flex-wrap" style="background:rgba(0,0,0,0.3);padding:24px 40px;border-radius:16px;backdrop-filter:blur(10px);display:inline-flex !important">
+      <div class="text-center">
+        <div style="font-size:2.2rem;font-weight:900;color:#fca5a5">₹{{ total_money }}</div>
+        <div style="opacity:0.8;font-size:0.85rem;letter-spacing:1px">FUNDS RAISED</div>
+      </div>
+      <div style="border-left:1px solid rgba(255,255,255,0.2);margin:0 10px"></div>
+      <div class="text-center">
+        <div style="font-size:2.2rem;font-weight:900;color:#fca5a5">{{ total_camps }}</div>
+        <div style="opacity:0.8;font-size:0.85rem;letter-spacing:1px">ACTIVE CAMPS</div>
+      </div>
+      <div style="border-left:1px solid rgba(255,255,255,0.2);margin:0 10px"></div>
+      <div class="text-center">
+        <div style="font-size:2.2rem;font-weight:900;color:#fca5a5">{{ total_volunteers }}</div>
+        <div style="opacity:0.8;font-size:0.85rem;letter-spacing:1px">VOLUNTEERS</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Urgent Needs Ticker -->
+{% if urgent_needs %}
+<div style="background:#c0392b;padding:12px 0;overflow:hidden">
+  <div class="container">
+    <div class="d-flex align-items-center gap-3">
+      <span style="background:white;color:#c0392b;padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:700;white-space:nowrap">
+        🚨 URGENT
+      </span>
+      <div style="color:white;font-size:0.9rem;overflow:hidden;white-space:nowrap">
+        {% for need in urgent_needs %}
+        <span class="me-4">{{ need.camp.name }} needs <strong>{{ need.item }}</strong> urgently</span>
+        {% endfor %}
+      </div>
+      <a href="{% url 'item_donate' %}" class="btn btn-sm btn-light fw-bold ms-auto" style="white-space:nowrap;border-radius:20px">
+        Help Now
+      </a>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- How it works -->
+<div class="container mt-5 pt-3">
+  <div class="text-center mb-5">
+    <span class="section-badge">Simple Process</span>
+    <h2 class="section-title">How It Works</h2>
+    <p class="section-subtitle">Three simple steps to make a difference</p>
+  </div>
+  <div class="row g-4 mb-5">
+    <div class="col-md-4 text-center">
+      <div style="background:#fff5f5;width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:2rem">
+        1️⃣
+      </div>
+      <h5 class="fw-bold">Choose a Camp</h5>
+      <p class="text-muted">Browse verified relief camps and see exactly what they need</p>
+    </div>
+    <div class="col-md-4 text-center">
+      <div style="background:#fff5f5;width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:2rem">
+        2️⃣
+      </div>
+      <h5 class="fw-bold">Make a Donation</h5>
+      <p class="text-muted">Donate money via GPay/UPI or send essential items by courier</p>
+    </div>
+    <div class="col-md-4 text-center">
+      <div style="background:#fff5f5;width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:2rem">
+        3️⃣
+      </div>
+      <h5 class="fw-bold">Track Impact</h5>
+      <p class="text-muted">See real-time updates on how your donation is being used</p>
+    </div>
+  </div>
+</div>
+
+<!-- Active Camps -->
+<div style="background:white;padding:60px 0">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+      <div>
+        <span class="section-badge">Live Updates</span>
+        <h2 class="section-title mb-0">Active Relief Camps</h2>
+      </div>
+      <a href="{% url 'camp_map' %}" class="btn btn-outline-red px-4">
+        <i class="fas fa-map-marked-alt me-2"></i>View on Map
+      </a>
+    </div>
+    <div class="row g-4">
+      {% for camp in camps %}
+      <div class="col-md-4">
+        <div class="card h-100" style="overflow:hidden">
+          <div style="background:linear-gradient(135deg,#e74c3c,#c0392b);padding:20px;color:white">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h5 class="fw-bold mb-1">{{ camp.name }}</h5>
+                <p class="mb-0 small" style="opacity:0.9">
+                  <i class="fas fa-map-marker-alt me-1"></i>{{ camp.district }}
+                </p>
+              </div>
+              <span class="badge bg-white text-success px-2 py-1" style="font-size:0.75rem">
+                <i class="fas fa-circle me-1" style="font-size:0.5rem"></i>Active
+              </span>
+            </div>
+          </div>
+          <div class="p-4">
+            <div class="d-flex gap-3 mb-3">
+              <div class="text-center flex-grow-1 p-2 rounded" style="background:#f8f9fa">
+                <div class="fw-bold text-danger">{{ camp.people_count }}</div>
+                <div class="text-muted" style="font-size:0.75rem">People</div>
+              </div>
+              <div class="text-center flex-grow-1 p-2 rounded" style="background:#f8f9fa">
+                <div class="fw-bold text-danger">{{ camp.needs.count }}</div>
+                <div class="text-muted" style="font-size:0.75rem">Needs</div>
+              </div>
+              <div class="text-center flex-grow-1 p-2 rounded" style="background:#f8f9fa">
+                <div class="fw-bold text-danger">{{ camp.volunteers.count }}</div>
+                <div class="text-muted" style="font-size:0.75rem">Volunteers</div>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <a href="{% url 'camp_detail' camp.pk %}" class="btn btn-donate flex-grow-1">
+                View Needs
+              </a>
+              <a href="{% url 'money_donate' %}" class="btn btn-outline-red px-3">
+                <i class="fas fa-heart"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center p-5">
+        <i class="fas fa-campground fa-4x text-muted mb-3 d-block"></i>
+        <h4 class="text-muted">No active camps at the moment</h4>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Urgent Needs Section -->
+{% if urgent_needs %}
+<div class="container mt-5">
+  <div class="text-center mb-4">
+    <span class="section-badge" style="background:#fff5f5;color:#e74c3c">🔴 Urgent</span>
+    <h2 class="section-title">Items Needed Right Now</h2>
+    <p class="section-subtitle">These camps have critical shortages</p>
+  </div>
+  <div class="row g-4">
+    {% for need in urgent_needs %}
+    <div class="col-md-4">
+      <div class="card p-4 h-100" style="border-top:4px solid #e74c3c !important">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <h5 class="fw-bold mb-1">{{ need.item }}</h5>
+            <p class="text-muted small mb-0">
+              <i class="fas fa-campground me-1 text-danger"></i>{{ need.camp.name }}
+            </p>
+          </div>
+          <span class="badge bg-danger px-3 py-2">URGENT</span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <small class="text-muted">{{ need.percent_fulfilled }}% fulfilled</small>
+          <small class="text-muted">{{ need.remaining }} {{ need.unit }} needed</small>
+        </div>
+        <div class="progress mb-3">
+          <div class="progress-bar bg-danger" style="width:{{ need.percent_fulfilled }}%"></div>
+        </div>
+        <a href="{% url 'item_donate' %}" class="btn btn-donate w-100">
+          <i class="fas fa-truck me-2"></i>Donate This Item
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- How You Can Help -->
+<div style="background:linear-gradient(135deg,#1a1a2e,#16213e);padding:80px 0;margin-top:80px">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 style="color:white;font-size:2.5rem;font-weight:900">Three Ways to Help</h2>
+      <p style="color:rgba(255,255,255,0.6);font-size:1.1rem">Every action counts — choose what works for you</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card p-4 text-center h-100" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1) !important">
+          <div style="background:linear-gradient(135deg,#e74c3c,#c0392b);width:70px;height:70px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+            <i class="fas fa-hand-holding-usd" style="color:white;font-size:1.8rem"></i>
+          </div>
+          <h5 class="fw-bold text-white mb-3">Donate Money</h5>
+          <p style="color:rgba(255,255,255,0.6);font-size:0.9rem;line-height:1.7">Send funds instantly via GPay, PhonePe, UPI or card. Every rupee is publicly tracked.</p>
+          <div class="mt-auto pt-3">
+            <a href="{% url 'money_donate' %}" class="btn btn-primary-red w-100">
+              Donate Now
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card p-4 text-center h-100" style="background:rgba(255,255,255,0.08);border:1px solid rgba(231,76,60,0.4) !important">
+          <div style="background:linear-gradient(135deg,#e74c3c,#c0392b);width:70px;height:70px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+            <i class="fas fa-boxes" style="color:white;font-size:1.8rem"></i>
+          </div>
+          <div style="position:absolute;top:16px;right:16px">
+            <span class="badge bg-danger px-2 py-1" style="font-size:0.7rem">MOST NEEDED</span>
+          </div>
+          <h5 class="fw-bold text-white mb-3">Donate Items</h5>
+          <p style="color:rgba(255,255,255,0.6);font-size:0.9rem;line-height:1.7">Food, medicine, clothes — courier directly to relief camps. We show you the exact address.</p>
+          <div class="mt-auto pt-3">
+            <a href="{% url 'item_donate' %}" class="btn btn-primary-red w-100">
+              Donate Items
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card p-4 text-center h-100" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1) !important">
+          <div style="background:linear-gradient(135deg,#e74c3c,#c0392b);width:70px;height:70px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+            <i class="fas fa-people-carry" style="color:white;font-size:1.8rem"></i>
+          </div>
+          <h5 class="fw-bold text-white mb-3">Volunteer</h5>
+          <p style="color:rgba(255,255,255,0.6);font-size:0.9rem;line-height:1.7">Register your skills and get assigned to a relief camp near you. Be the help someone needs.</p>
+          <div class="mt-auto pt-3">
+            <a href="{% url 'volunteer_register' %}" class="btn btn-primary-red w-100">
+              Register Now
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Trust Section -->
+<div class="container mt-5 mb-5">
+  <div class="text-center mb-5">
+    <span class="section-badge">Why Trust Us</span>
+    <h2 class="section-title">Built on Transparency</h2>
+    <p class="section-subtitle">We believe donors deserve to know exactly where their money goes</p>
+  </div>
+  <div class="row g-4">
+    <div class="col-md-3">
+      <div class="card p-4 text-center h-100">
+        <div style="background:#fff5f5;width:60px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+          <i class="fas fa-shield-alt fa-lg" style="color:#e74c3c"></i>
+        </div>
+        <h6 class="fw-bold">Verified Camps</h6>
+        <p class="text-muted small mb-0">Every camp verified by admin before listing publicly</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-4 text-center h-100">
+        <div style="background:#fff5f5;width:60px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+          <i class="fas fa-chart-line fa-lg" style="color:#e74c3c"></i>
+        </div>
+        <h6 class="fw-bold">Live Tracking</h6>
+        <p class="text-muted small mb-0">Real-time dashboard showing every donation publicly</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-4 text-center h-100">
+        <div style="background:#fff5f5;width:60px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+          <i class="fas fa-lock fa-lg" style="color:#e74c3c"></i>
+        </div>
+        <h6 class="fw-bold">Secure Payments</h6>
+        <p class="text-muted small mb-0">Powered by Razorpay with 256-bit SSL encryption</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-4 text-center h-100">
+        <div style="background:#fff5f5;width:60px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+          <i class="fas fa-map-marked-alt fa-lg" style="color:#e74c3c"></i>
+        </div>
+        <h6 class="fw-bold">Interactive Map</h6>
+        <p class="text-muted small mb-0">See all camps on a live map of Kerala</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA Banner -->
+  <div class="card mt-5 p-5 text-center" style="background:linear-gradient(135deg,#e74c3c,#c0392b);border:none !important">
+    <h3 class="fw-bold text-white mb-2">Ready to Make a Difference?</h3>
+    <p class="text-white mb-4" style="opacity:0.9">Join thousands of donors helping Kerala recover. Every rupee counts.</p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+      <a href="{% url 'money_donate' %}" class="btn btn-lg px-5 fw-bold" style="background:white;color:#e74c3c;border-radius:50px">
+        <i class="fas fa-heart me-2"></i>Donate Now
+      </a>
+      <a href="{% url 'dashboard' %}" class="btn btn-lg px-5 fw-bold" style="background:transparent;color:white;border:2px solid rgba(255,255,255,0.7);border-radius:50px">
+        <i class="fas fa-chart-bar me-2"></i>See Transparency
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

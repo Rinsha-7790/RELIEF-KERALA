@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+{% block content %}
+
+<div style="background:linear-gradient(135deg,#e74c3c,#c0392b);padding:60px 0">
+  <div class="container text-center text-white">
+    <div style="background:rgba(255,255,255,0.2);width:80px;height:80px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+      <i class="fas fa-sign-in-alt" style="font-size:2.5rem"></i>
+    </div>
+    <h1 class="fw-bold">Welcome Back</h1>
+    <p style="opacity:0.9">Login with your email or username</p>
+  </div>
+</div>
+
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+      <div class="card p-5">
+        <form method="POST" autocomplete="off">
+          {% csrf_token %}
+
+          <div class="mb-4">
+            <label class="form-label">
+              <i class="fas fa-user me-2 text-danger"></i>Email or Username
+            </label>
+            <input type="text" name="email" class="form-control form-control-lg"
+                   placeholder="your@email.com or username"
+                   autocomplete="off" required>
+            <div class="form-text">
+              Donors use email — Panchayath staff use username
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">
+              <i class="fas fa-lock me-2 text-danger"></i>Password
+            </label>
+            <input type="password" name="password" class="form-control form-control-lg"
+                   placeholder="Your password"
+                   autocomplete="new-password" required>
+          </div>
+
+          {% if messages %}
+          {% for message in messages %}
+          <div class="alert alert-danger mb-4">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
+          </div>
+          {% endfor %}
+          {% endif %}
+
+          <button type="submit" class="btn btn-donate w-100 btn-lg py-3">
+            <i class="fas fa-sign-in-alt me-2"></i>Login
+          </button>
+        </form>
+
+        <hr class="my-4">
+
+        <div class="text-center">
+          <p class="text-muted mb-2 small fw-semibold">Don't have an account?</p>
+          <a href="{% url 'register' %}" class="btn btn-outline-danger w-100 mb-2"
+             style="border-radius:10px">
+            <i class="fas fa-user-plus me-2"></i>Register as Donor / Volunteer
+          </a>
+          <a href="{% url 'panchayath_register' %}" class="btn btn-outline-secondary w-100"
+             style="border-radius:10px">
+            <i class="fas fa-building me-2"></i>Register as Panchayath
+          </a>
+        </div>
+      </div>
+
+      <!-- Info card -->
+      <div class="card p-4 mt-3" style="background:#fff8e1;border:1px solid #fde68a !important">
+        <p class="fw-bold mb-2 small" style="color:#92400e">
+          <i class="fas fa-info-circle me-2"></i>Panchayath Staff?
+        </p>
+        <p class="text-muted small mb-0">
+          Use your <strong>username</strong> and password to login.
+          Your email is not required.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

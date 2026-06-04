@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Complete Payment{% endblock %}
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card p-4 text-center">
+        <h3 class="fw-bold mb-2">💰 Complete Your Donation</h3>
+        <p class="text-muted">You are donating <strong>₹{{ amount_display }}</strong></p>
+
+        <div class="alert alert-info mt-3">
+          <strong>Test Mode:</strong> Use card number <code>4111 1111 1111 1111</code><br>
+          Any future expiry, CVV 123
+        </div>
+
+        <button id="pay-btn" class="btn btn-donate btn-lg w-100 mt-3">
+          💳 Pay ₹{{ amount_display }} Now
+        </button>
+
+        <form id="payment-form" method="POST" action="{% url 'payment_success' %}">
+          {% csrf_token %}
+          <input type="hidden" name="razorpay_order_id" id="order_id">
+          <input type="hidden" name="razorpay_payment_id" id="payment_id">
+          <input type="hidden" name="razorpay_signature" id="signature">
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  var options = {
+    key: "{{ razorpay_key }}",
+    amount: "{{ amount }}",
+    currency: "INR",
+    name: "Disaster Relief Kerala",
+    description: "Donation for Relief Camps",
+    order_id: "{{ razorpay_order_id }}",
+    handler: function(response) {
+      document.getElementById('order_id').value = response.razorpay_order_id;
+      document.getElementById('payment_id').value = response.razorpay_payment_id;
+      document.getElementById('signature').value = response.razorpay_signature;
+      document.getElementById('payment-form').submit();
+    },
+    prefill: {
+      name: "{{ donor_name }}",
+    },
+    theme: { color: "#e74c3c" }
+  };
+
+  document.getElementById('pay-btn').onclick = function() {
+    var rzp = new Razorpay(options);
+    rzp.open();
+  };
+</script>
+{% endblock %}

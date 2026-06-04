@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% block title %}{{ camp.name }}{% endblock %}
+{% block content %}
+
+<!-- Header -->
+<div style="background:linear-gradient(135deg,#e74c3c,#c0392b);padding:60px 0">
+  <div class="container text-white">
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb" style="background:none;padding:0">
+        <li class="breadcrumb-item">
+          <a href="{% url 'home' %}" style="color:rgba(255,255,255,0.7)">Home</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="{% url 'camp_list' %}" style="color:rgba(255,255,255,0.7)">Relief Camps</a>
+        </li>
+        <li class="breadcrumb-item active" style="color:white">{{ camp.name }}</li>
+      </ol>
+    </nav>
+    <div class="d-flex align-items-center gap-4">
+      <div style="background:rgba(255,255,255,0.2);width:80px;height:80px;border-radius:20px;display:flex;align-items:center;justify-content:center">
+        <i class="fas fa-campground" style="font-size:2.5rem"></i>
+      </div>
+      <div>
+        <h1 class="fw-bold mb-2">{{ camp.name }}</h1>
+        <div class="d-flex gap-3 flex-wrap">
+          <span style="opacity:0.9">
+            <i class="fas fa-map-marker-alt me-1"></i>{{ camp.location }}
+          </span>
+          <span style="opacity:0.9">
+            <i class="fas fa-map me-1"></i>{{ camp.district }}
+          </span>
+          <span class="badge bg-success px-3 py-2">
+            <i class="fas fa-circle me-1" style="font-size:0.6rem"></i>Active
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container mt-5 mb-5">
+  <div class="row g-4">
+
+    <!-- Left - Camp Info + Needs -->
+    <div class="col-md-8">
+
+      <!-- Camp Info Cards -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="card p-3 text-center" style="background:#fff5f5">
+            <i class="fas fa-users fa-2x mb-2" style="color:#e74c3c"></i>
+            <h4 class="fw-bold text-danger">{{ camp.people_count }}</h4>
+            <p class="text-muted small mb-0">People Sheltered</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card p-3 text-center" style="background:#f0fdf4">
+            <i class="fas fa-user fa-2x mb-2 text-success"></i>
+            <h6 class="fw-bold text-success">{{ camp.contact_person }}</h6>
+            <p class="text-muted small mb-0">Contact Person</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card p-3 text-center" style="background:#eff6ff">
+            <i class="fas fa-phone fa-2x mb-2 text-primary"></i>
+            <h6 class="fw-bold text-primary">{{ camp.contact_phone }}</h6>
+            <p class="text-muted small mb-0">Phone Number</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current Needs -->
+      <div class="card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="fw-bold mb-0">
+            <i class="fas fa-clipboard-list me-2 text-danger"></i>Current Needs
+          </h5>
+          <span class="badge bg-danger px-3 py-2">
+            {{ needs|length }} item{{ needs|length|pluralize }}
+          </span>
+        </div>
+
+        {% if needs %}
+        <div class="row g-3">
+          {% for need in needs %}
+          <div class="col-md-6">
+            <div class="card p-3 h-100" style="border-left:4px solid {% if need.priority == 'urgent' %}#e74c3c{% elif need.priority == 'normal' %}#f59e0b{% else %}#10b981{% endif %} !important">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="fw-bold mb-0">{{ need.item }}</h6>
+                <span class="badge {% if need.priority == 'urgent' %}bg-danger{% elif need.priority == 'normal' %}bg-warning{% else %}bg-success{% endif %} px-2 py-1" style="font-size:0.75rem">
+                  {{ need.get_priority_display }}
+                </span>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <small class="text-muted">Needed: <strong>{{ need.quantity_needed }} {{ need.unit }}</strong></small>
+                <small class="text-muted">Got: <strong>{{ need.quantity_received }} {{ need.unit }}</strong></small>
+              </div>
+              <div class="progress mb-1">
+                <div class="progress-bar {% if need.priority == 'urgent' %}bg-danger{% else %}bg-success{% endif %}"
+                     style="width:{{ need.percent_fulfilled }}%"></div>
+              </div>
+              <div class="d-flex justify-content-between">
+                <small class="text-muted">{{ need.percent_fulfilled }}% fulfilled</small>
+                <small class="text-muted">{{ need.remaining }} {{ need.unit }} needed</small>
+              </div>
+              {% if need.is_fulfilled %}
+              <div class="mt-2">
+                <span class="badge bg-success w-100 py-2">
+                  <i class="fas fa-check me-1"></i>Fulfilled
+                </span>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center p-5">
+          <i class="fas fa-check-circle fa-4x text-success mb-3 d-block"></i>
+          <h5 class="text-success">All needs fulfilled!</h5>
+          <p class="text-muted">This camp has no pending needs right now. Thank you to all donors!</p>
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- Right sidebar -->
+    <div class="col-md-4">
+
+      <!-- Donate Now card -->
+      <div class="card p-4 mb-3" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">
+        <h5 class="fw-bold text-white mb-2">
+          <i class="fas fa-heart me-2"></i>Help This Camp
+        </h5>
+        <p class="text-white mb-4" style="opacity:0.9;font-size:0.9rem">
+          Your donation directly helps the {{ camp.people_count }} people sheltered here
+        </p>
+        <div class="d-grid gap-2">
+          <a href="{% url 'money_donate' %}" class="btn btn-lg fw-bold" style="background:white;color:#e74c3c;border-radius:10px">
+            <i class="fas fa-hand-holding-usd me-2"></i>Donate Money
+          </a>
+          <a href="{% url 'item_donate' %}" class="btn btn-lg fw-bold" style="background:rgba(255,255,255,0.2);color:white;border:2px solid rgba(255,255,255,0.5);border-radius:10px">
+            <i class="fas fa-boxes me-2"></i>Donate Items
+          </a>
+        </div>
+      </div>
+
+      <!-- Courier Address -->
+      <div class="card p-4 mb-3">
+        <h6 class="fw-bold mb-3">
+          <i class="fas fa-truck me-2 text-danger"></i>Courier Address
+        </h6>
+        <div class="p-3 rounded-3" style="background:#f8f9fa">
+          <p class="fw-bold mb-1 small">{{ camp.name }}</p>
+          <p class="text-muted small mb-1">
+            <i class="fas fa-map-marker-alt me-2 text-danger"></i>{{ camp.location }}
+          </p>
+          <p class="text-muted small mb-1">
+            <i class="fas fa-map me-2 text-danger"></i>{{ camp.district }} District, Kerala
+          </p>
+          <p class="text-muted small mb-0">
+            <i class="fas fa-phone me-2 text-danger"></i>{{ camp.contact_person }} — {{ camp.contact_phone }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Volunteer -->
+      <div class="card p-4">
+        <h6 class="fw-bold mb-3">
+          <i class="fas fa-hands-helping me-2 text-danger"></i>Volunteer Here
+        </h6>
+        <p class="text-muted small mb-3">Register as a volunteer and get assigned to this camp</p>
+        <a href="{% url 'volunteer_register' %}" class="btn btn-donate w-100">
+          <i class="fas fa-hands-helping me-2"></i>Register as Volunteer
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

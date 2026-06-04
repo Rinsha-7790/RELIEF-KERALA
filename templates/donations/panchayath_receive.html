@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Mark Items Received{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width:680px">
+  <a href="{% url 'panchayath_dashboard' %}" class="text-muted text-decoration-none small">
+    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+  </a>
+  <div class="card border-0 shadow-sm mt-3">
+    <div class="card-header bg-warning bg-opacity-10 border-0 pt-3">
+      <h4 class="fw-bold mb-0 text-warning">
+        <i class="fas fa-hand-holding me-2"></i>Mark Items Received at Panchayath
+      </h4>
+    </div>
+    <div class="card-body">
+      <div class="bg-light rounded p-3 mb-4 small">
+        <div class="row g-2">
+          <div class="col-6"><span class="text-muted">Tracking ID:</span>
+            <strong class="ms-1 font-monospace">{{ donation.tracking_id }}</strong></div>
+          <div class="col-6"><span class="text-muted">Donor:</span>
+            <strong class="ms-1">{{ donation.donor_name }}</strong></div>
+          <div class="col-12"><span class="text-muted">Items:</span>
+            <span class="ms-1">{{ donation.item_name }} (Qty: {{ donation.quantity }})</span></div>
+          <div class="col-12"><span class="text-muted">Camp:</span>
+            <strong class="ms-1 text-danger">{{ donation.camp.name }}</strong></div>
+        </div>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Panchayath Name <span class="text-danger">*</span></label>
+          <input type="text" name="panchayath_name" class="form-control"
+                 placeholder="e.g. Thiruvananthapuram Corporation Ward 12" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Collection Address <span class="text-danger">*</span></label>
+          <textarea name="panchayath_address" class="form-control" rows="2"
+                    placeholder="Full address of panchayath office" required></textarea>
+        </div>
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Notes (optional)</label>
+          <textarea name="delivery_notes" class="form-control" rows="2"
+                    placeholder="e.g. 2 boxes received in good condition"></textarea>
+        </div>
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-warning fw-semibold">
+            <i class="fas fa-check me-1"></i>Confirm Receipt
+          </button>
+          <a href="{% url 'panchayath_dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

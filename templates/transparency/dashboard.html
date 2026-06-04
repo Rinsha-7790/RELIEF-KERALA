@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% block title %}Transparency Dashboard{% endblock %}
+{% block content %}
+
+<div style="background:linear-gradient(135deg,#e74c3c,#c0392b);padding:60px 0">
+  <div class="container text-center text-white">
+    <div style="background:rgba(255,255,255,0.2);width:80px;height:80px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+      <i class="fas fa-chart-bar" style="font-size:2.5rem"></i>
+    </div>
+    <h1 class="fw-bold">Transparency Dashboard</h1>
+    <p style="opacity:0.9">Every donation tracked — money and items</p>
+  </div>
+</div>
+
+<div class="container mt-5 mb-5">
+
+  <!-- Money stats -->
+  <div class="row g-4 mb-5">
+    <div class="col-md-4">
+      <div class="card p-4 text-center border-0 shadow-sm">
+        <div class="fs-3 fw-bold text-success">₹{{ total_money }}</div>
+        <p class="text-muted mb-0">Total Funds Received</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card p-4 text-center border-0 shadow-sm">
+        <div class="fs-3 fw-bold text-warning">₹{{ allocated }}</div>
+        <p class="text-muted mb-0">Allocated to Camps</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card p-4 text-center border-0 shadow-sm">
+        <div class="fs-3 fw-bold text-danger">₹{{ unallocated }}</div>
+        <p class="text-muted mb-0">Unallocated Funds</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Money donations table -->
+  <h4 class="fw-bold mb-3">
+    <i class="fas fa-rupee-sign me-2 text-danger"></i>Recent Money Donations
+  </h4>
+  <div class="card border-0 shadow-sm mb-5">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>Donor</th>
+            <th>Amount</th>
+            <th>Camp</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in money_donations %}
+          <tr>
+            <td class="fw-semibold">{{ d.donor_name }}</td>
+            <td>₹{{ d.amount }}</td>
+            <td>{{ d.camp.name|default:"General Fund" }}</td>
+            <td>
+              <span class="badge bg-success">{{ d.get_status_display }}</span>
+            </td>
+            <td class="text-muted small">{{ d.date|date:"d M Y" }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center text-muted py-4">No donations yet</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Item donations table -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0">
+      <i class="fas fa-box me-2 text-danger"></i>Recent Item Donations
+    </h4>
+    <a href="{% url 'item_transparency' %}" class="btn btn-outline-danger btn-sm">
+      <i class="fas fa-eye me-1"></i>View Full Item Tracking
+    </a>
+  </div>
+  <div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>Tracking ID</th>
+            <th>Donor</th>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Panchayath</th>
+            <th>Camp</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in item_donations %}
+          <tr>
+            <td>
+              <a href="{% url 'track_donation' d.tracking_id %}"
+                 class="badge bg-dark font-monospace text-decoration-none">
+                {{ d.tracking_id }}
+              </a>
+            </td>
+            <td class="fw-semibold">{{ d.donor_name }}</td>
+            <td>{{ d.item_name }}</td>
+            <td>{{ d.quantity }} {{ d.unit }}</td>
+            <td>
+              {% if d.panchayath %}
+                <div class="fw-semibold">{{ d.panchayath.panchayath_name }}</div>
+                <div class="text-muted small">{{ d.panchayath.district }}</div>
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td>{{ d.camp.name|default:"—" }}</td>
+            <td>
+              {% if d.delivery_status == 'registered' %}
+                <span class="badge bg-secondary">Registered</span>
+              {% elif d.delivery_status == 'at_panchayath' %}
+                <span class="badge bg-warning text-dark">At Panchayath</span>
+              {% elif d.delivery_status == 'in_transit' %}
+                <span class="badge bg-primary">In Transit</span>
+              {% elif d.delivery_status == 'at_camp' %}
+                <span class="badge bg-info">At Camp</span>
+              {% elif d.delivery_status == 'delivered' %}
+                <span class="badge bg-success">Delivered</span>
+              {% endif %}
+            </td>
+            <td class="text-muted small">{{ d.created_at|date:"d M Y" }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" class="text-center text-muted py-4">No item donations yet</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

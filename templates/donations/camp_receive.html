@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Mark Items Received at Camp{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width:680px">
+  <a href="{% url 'camp_head_dashboard' %}" class="text-muted text-decoration-none small">
+    <i class="fas fa-arrow-left me-1"></i>Back to Camp Dashboard
+  </a>
+  <div class="card border-0 shadow-sm mt-3">
+    <div class="card-header bg-success bg-opacity-10 border-0 pt-3">
+      <h4 class="fw-bold mb-0 text-success">
+        <i class="fas fa-box-open me-2"></i>Confirm Items Received at Camp
+      </h4>
+    </div>
+    <div class="card-body">
+      <div class="bg-light rounded p-3 mb-4 small">
+        <div class="row g-2">
+          <div class="col-6"><span class="text-muted">Tracking ID:</span>
+            <strong class="ms-1 font-monospace">{{ donation.tracking_id }}</strong></div>
+          <div class="col-6"><span class="text-muted">Camp:</span>
+            <strong class="ms-1 text-danger">{{ donation.camp.name }}</strong></div>
+          <div class="col-12"><span class="text-muted">Items:</span>
+            <span class="ms-1">{{ donation.item_name }} (Qty: {{ donation.quantity }})</span></div>
+          <div class="col-6"><span class="text-muted">Donor:</span>
+            <strong class="ms-1">{{ donation.donor_name }}</strong></div>
+          <div class="col-6"><span class="text-muted">From:</span>
+            <span class="ms-1">{{ donation.panchayath_name|default:"—" }}</span></div>
+          {% if donation.delivery_notes %}
+          <div class="col-12"><span class="text-muted">Notes so far:</span>
+            <span class="ms-1 fst-italic">{{ donation.delivery_notes }}</span></div>
+          {% endif %}
+        </div>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Received By <span class="text-danger">*</span></label>
+          <input type="text" name="received_by" class="form-control"
+                 placeholder="Your name or volunteer who verified items" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Notes (optional)</label>
+          <textarea name="delivery_notes" class="form-control" rows="2"
+                    placeholder="e.g. All 3 boxes received. Rice and medicines confirmed."></textarea>
+        </div>
+        <div class="mb-4">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" name="mark_delivered"
+                   value="yes" id="markDelivered">
+            <label class="form-check-label fw-semibold" for="markDelivered">
+              Mark as <span class="text-success">Fully Delivered</span>
+              <span class="text-muted fw-normal ms-1 small">
+                (tick when items are distributed to camp residents)
+              </span>
+            </label>
+          </div>
+        </div>
+        <div class="alert alert-info border-0 small">
+          <i class="fas fa-eye me-2"></i>
+          This update will be visible on the <strong>public transparency dashboard</strong>
+          and the donor's tracking page instantly.
+        </div>
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-success fw-semibold">
+            <i class="fas fa-check me-1"></i>Confirm & Update
+          </button>
+          <a href="{% url 'camp_head_dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

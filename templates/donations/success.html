@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Thank You!{% endblock %}
+{% block content %}
+
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card p-5 text-center">
+
+        <div style="background:#f0fdf4;width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px">
+          <i class="fas fa-check-circle fa-3x text-success"></i>
+        </div>
+
+        <h2 class="fw-bold mb-2">Thank You!</h2>
+        <p class="text-muted mb-4">Your donation has been registered successfully. Every contribution makes a real difference to families in need.</p>
+
+        <div class="p-3 rounded-3 mb-4" style="background:#fff5f5;border:1px solid #fecaca">
+          <p class="fw-bold text-danger mb-1 small">
+            <i class="fas fa-truck me-2"></i>Next Steps for Item Donations
+          </p>
+          <p class="text-muted small mb-0">
+            Please courier your items to the relief camp address you selected. Add the tracking number to help us track your shipment.
+          </p>
+        </div>
+
+        <div class="d-grid gap-3">
+          <a href="{% url 'dashboard' %}" class="btn btn-donate btn-lg">
+            <i class="fas fa-chart-bar me-2"></i>View Transparency Dashboard
+          </a>
+          <a href="{% url 'money_donate' %}" class="btn btn-outline-red btn-lg">
+            <i class="fas fa-hand-holding-usd me-2"></i>Donate Money Too
+          </a>
+          <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-lg" style="border-radius:10px">
+            <i class="fas fa-home me-2"></i>Back to Home
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Share card -->
+      <div class="card p-4 mt-3 text-center">
+        <p class="fw-bold mb-3">
+          <i class="fas fa-share-alt me-2 text-danger"></i>Spread the Word
+        </p>
+        <p class="text-muted small mb-3">Help us reach more donors by sharing this on social media</p>
+        <div class="d-flex gap-2 justify-content-center">
+          <a href="https://wa.me/?text=I just donated to Disaster Relief Kerala! Join me in helping flood victims. Visit: 127.0.0.1:8000"
+             target="_blank" class="btn btn-success px-4">
+            <i class="fab fa-whatsapp me-2"></i>WhatsApp
+          </a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=127.0.0.1:8000"
+             target="_blank" class="btn btn-primary px-4">
+            <i class="fab fa-facebook me-2"></i>Facebook
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

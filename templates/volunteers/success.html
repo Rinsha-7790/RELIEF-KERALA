@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Registration Submitted{% endblock %}
+{% block content %}
+<div class="container mt-5 text-center">
+  <div class="card p-5" style="max-width:500px;margin:auto">
+    <div style="font-size:5rem">✅</div>
+    <h2 class="fw-bold mt-3">Registration Submitted!</h2>
+    <p class="text-muted">Your volunteer registration is under review. Admin will approve it shortly.</p>
+    <a href="{% url 'home' %}" class="btn btn-donate">Back to Home</a>
+  </div>
+</div>
+{% endblock %}

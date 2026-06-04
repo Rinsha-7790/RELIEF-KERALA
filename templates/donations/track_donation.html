@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% block title %}Track Donation {{ donation.tracking_id }}{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width:720px">
+
+  <div class="text-center mb-4">
+    <h2 class="fw-bold text-danger">
+      <i class="fas fa-map-marker-alt me-2"></i>Track Your Donation
+    </h2>
+    <p class="text-muted">
+      Tracking ID:
+      <span class="badge bg-dark font-monospace fs-6">{{ donation.tracking_id }}</span>
+    </p>
+  </div>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row g-3 small">
+        <div class="col-md-6">
+          <span class="text-muted">Donor Name</span>
+          <div class="fw-semibold">{{ donation.donor_name }}</div>
+        </div>
+        <div class="col-md-6">
+          <span class="text-muted">Items Donated</span>
+          <div class="fw-semibold">{{ donation.item_name }}</div>
+        </div>
+        <div class="col-md-6">
+          <span class="text-muted">Quantity</span>
+          <div class="fw-semibold">{{ donation.quantity }} {{ donation.unit }}</div>
+        </div>
+        <div class="col-md-6">
+          <span class="text-muted">Destination Camp</span>
+          <div class="fw-semibold text-danger">{{ donation.camp.name }}</div>
+        </div>
+        <div class="col-md-6">
+          <span class="text-muted">Registered On</span>
+          <div class="fw-semibold">{{ donation.created_at|date:"d M Y, H:i" }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if donation.delivery_status == 'registered' %}
+  <div class="alert alert-warning border-0 mb-4">
+    <h6 class="fw-bold mb-1">
+      <i class="fas fa-map-pin me-1"></i>Next Step — Drop Off Your Items
+    </h6>
+    <p class="mb-0 small">
+      Please bring your items to your nearest
+      <strong>Panchayath office</strong>. Show them this tracking ID.
+      They will log the items and send them to
+      <strong>{{ donation.camp.name }}</strong>.
+    </p>
+  </div>
+  {% endif %}
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 pt-3">
+      <h5 class="fw-semibold mb-0">
+        <i class="fas fa-route me-2 text-danger"></i>Delivery Journey
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="position-relative">
+
+        <div style="position:absolute;left:19px;top:24px;bottom:24px;
+                    width:2px;background:#dee2e6;z-index:0"></div>
+
+        {% for key, label, icon in STATUS_STEPS %}
+        {% with step_index=forloop.counter0 %}
+        <div class="d-flex align-items-start gap-3 mb-4 position-relative" style="z-index:1">
+
+          {% if step_index < current_index %}
+          <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+               style="width:40px;height:40px;background:#198754;color:#fff">
+            <i class="fas fa-check fa-sm"></i>
+          </div>
+          {% elif step_index == current_index %}
+          <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+               style="width:40px;height:40px;background:#dc3545;color:#fff;
+                      box-shadow:0 0 0 4px rgba(220,53,69,0.15)">
+            <i class="fas {{ icon }} fa-sm"></i>
+          </div>
+          {% else %}
+          <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+               style="width:40px;height:40px;background:#e9ecef;color:#adb5bd">
+            <i class="fas {{ icon }} fa-sm"></i>
+          </div>
+          {% endif %}
+
+          <div class="pt-1">
+            <div class="fw-semibold
+              {% if step_index == current_index %}text-danger
+              {% elif step_index < current_index %}text-success
+              {% else %}text-muted{% endif %}">
+              {{ label }}
+              {% if step_index == current_index %}
+              <span class="badge bg-danger ms-1" style="font-size:0.7rem">Current</span>
+              {% endif %}
+            </div>
+
+            {% if step_index == 0 %}
+            <div class="text-muted small">{{ donation.created_at|date:"d M Y, H:i" }}</div>
+            {% elif step_index == 1 and donation.panchayath_name %}
+            <div class="text-muted small">{{ donation.panchayath_name }}</div>
+            {% elif step_index == 2 and donation.dispatched_by %}
+            <div class="text-muted small">
+              Dispatched by {{ donation.dispatched_by }}
+              {% if donation.dispatched_at %}— {{ donation.dispatched_at|date:"d M, H:i" }}{% endif %}
+            </div>
+            {% elif step_index == 3 and donation.received_by %}
+            <div class="text-muted small">
+              Received by {{ donation.received_by }}
+              {% if donation.received_at %}— {{ donation.received_at|date:"d M, H:i" }}{% endif %}
+            </div>
+            {% elif step_index == 4 and donation.delivery_status == 'delivered' %}
+            <div class="text-muted small">Items distributed to camp residents</div>
+            {% endif %}
+
+          </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+
+      </div>
+    </div>
+  </div>
+
+  {% if donation.delivery_notes %}
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <h6 class="fw-semibold mb-1">
+        <i class="fas fa-sticky-note me-2 text-muted"></i>Notes
+      </h6>
+      <p class="mb-0 small text-muted fst-italic">{{ donation.delivery_notes|linebreaksbr }}</p>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if donation.delivery_status == 'delivered' %}
+  <div class="alert alert-success border-0 text-center">
+    <i class="fas fa-heart fa-2x text-success mb-2 d-block"></i>
+    <strong>Thank you, {{ donation.donor_name }}!</strong><br>
+    Your donation has reached <strong>{{ donation.camp.name }}</strong>.
+    Your kindness makes a real difference. 🙏
+  </div>
+  {% endif %}
+
+  <div class="text-center mt-3">
+    <a href="{% url 'item_transparency' %}" class="btn btn-outline-danger btn-sm">
+      <i class="fas fa-chart-bar me-1"></i>View All Donations
+    </a>
+  </div>
+
+</div>
+{% endblock %}

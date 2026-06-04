@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Register{% endblock %}
+{% block content %}
+
+<div style="background:linear-gradient(135deg,#e74c3c,#c0392b);padding:60px 0">
+  <div class="container text-center text-white">
+    <div style="background:rgba(255,255,255,0.2);width:80px;height:80px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+      <i class="fas fa-user-plus" style="font-size:2.5rem"></i>
+    </div>
+    <h1 class="fw-bold">Create Account</h1>
+    <p style="opacity:0.9">Join thousands helping Kerala recover</p>
+  </div>
+</div>
+
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card p-5">
+        <form method="POST">
+          {% csrf_token %}
+
+          <div class="row">
+            <div class="col-md-6 mb-4">
+              <label class="form-label">
+                <i class="fas fa-user me-2 text-danger"></i>First Name
+              </label>
+              <input type="text" name="first_name" class="form-control form-control-lg"
+                     placeholder="First name" required>
+            </div>
+            <div class="col-md-6 mb-4">
+              <label class="form-label">
+                <i class="fas fa-user me-2 text-danger"></i>Last Name
+              </label>
+              <input type="text" name="last_name" class="form-control form-control-lg"
+                     placeholder="Last name" required>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">
+              <i class="fas fa-envelope me-2 text-danger"></i>Email Address
+            </label>
+            <input type="email" name="email" class="form-control form-control-lg"
+                   placeholder="your@email.com" required>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">
+              <i class="fas fa-phone me-2 text-danger"></i>Phone Number
+            </label>
+            <input type="text" name="phone" class="form-control form-control-lg"
+                   placeholder="10 digit mobile number"
+                   oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+                   maxlength="10" required>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">
+              <i class="fas fa-user-tag me-2 text-danger"></i>I want to
+            </label>
+            <select name="role" class="form-select form-select-lg">
+              <option value="donor">💰 Donate — I want to donate money or items</option>
+              <option value="volunteer">🙋 Volunteer — I want to help on ground</option>
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">
+              <i class="fas fa-lock me-2 text-danger"></i>Password
+            </label>
+            <input type="password" name="password1" class="form-control form-control-lg"
+                   placeholder="Create a strong password" required>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">
+              <i class="fas fa-lock me-2 text-danger"></i>Confirm Password
+            </label>
+            <input type="password" name="password2" class="form-control form-control-lg"
+                   placeholder="Repeat your password" required>
+          </div>
+
+          {% if form.errors %}
+          <div class="alert alert-danger mb-4">
+            {% for field in form %}
+              {% for error in field.errors %}
+                <p class="mb-1 small"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</p>
+              {% endfor %}
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <button type="submit" class="btn btn-donate w-100 btn-lg py-3">
+            <i class="fas fa-user-plus me-2"></i>Create Account
+          </button>
+
+          <p class="text-center mt-3 text-muted small">
+            Already have an account?
+            <a href="{% url 'login' %}" class="text-danger fw-bold">Login here</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

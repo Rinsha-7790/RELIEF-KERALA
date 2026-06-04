@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+{% block title %}Volunteer Registration{% endblock %}
+{% block content %}
+
+<div style="background:linear-gradient(135deg,#e74c3c,#c0392b);padding:60px 0">
+  <div class="container text-center text-white">
+    <div style="background:rgba(255,255,255,0.2);width:80px;height:80px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+      <i class="fas fa-people-carry" style="font-size:2.5rem"></i>
+    </div>
+    <h1 class="fw-bold">Volunteer Registration</h1>
+    <p style="opacity:0.9">Register your skills and help Kerala recover</p>
+  </div>
+</div>
+
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <form method="POST">
+        {% csrf_token %}
+
+        <!-- Section 1: Personal Info -->
+        <div class="card p-4 mb-4">
+          <h5 class="fw-bold mb-4" style="color:#e74c3c">
+            <i class="fas fa-user me-2"></i>Personal Information
+          </h5>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Full Name</label>
+              <input type="text" name="full_name" class="form-control"
+                     value="{{ user.get_full_name }}" placeholder="Your full name" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Phone Number</label>
+              <input type="text" name="phone" class="form-control"
+                     value="{{ user.phone }}"
+                     placeholder="10 digit mobile number"
+                     oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+                     maxlength="10" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Age</label>
+              <input type="number" name="age" class="form-control"
+                     placeholder="Your age" min="18" max="70" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Gender</label>
+              <select name="gender" class="form-select" required>
+                <option value="">-- Select --</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">District / Location</label>
+              <input type="text" name="location" class="form-control"
+                     placeholder="e.g. Kozhikode" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Full Address</label>
+              <textarea name="address" class="form-control" rows="2"
+                        placeholder="Your complete address" required></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Professional Info -->
+        <div class="card p-4 mb-4">
+          <h5 class="fw-bold mb-4" style="color:#e74c3c">
+            <i class="fas fa-briefcase me-2"></i>Professional Information
+          </h5>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Profession</label>
+              <select name="profession" class="form-select" required>
+                <option value="">-- Select Profession --</option>
+                <option value="student">Student</option>
+                <option value="doctor">Doctor / Medical Professional</option>
+                <option value="nurse">Nurse / Paramedic</option>
+                <option value="engineer">Engineer</option>
+                <option value="teacher">Teacher</option>
+                <option value="driver">Driver</option>
+                <option value="cook">Cook</option>
+                <option value="social_worker">Social Worker</option>
+                <option value="govt_employee">Government Employee</option>
+                <option value="ngo_worker">NGO Worker</option>
+                <option value="police">Police / Military</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Organisation / Institution Name</label>
+              <input type="text" name="organization" class="form-control"
+                     placeholder="e.g. Govt Medical College, Kozhikode">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Organisation Memberships -->
+        <div class="card p-4 mb-4">
+          <h5 class="fw-bold mb-4" style="color:#e74c3c">
+            <i class="fas fa-users me-2"></i>Organisation Memberships
+          </h5>
+          <p class="text-muted small mb-3">Select all organisations you are or have been a member of:</p>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="form-check p-3 rounded" style="background:#f8f9fa">
+                <input class="form-check-input" type="checkbox" name="has_nss" id="nss">
+                <label class="form-check-label fw-bold" for="nss">
+                  <i class="fas fa-flag me-2 text-danger"></i>NSS
+                  <div class="text-muted" style="font-size:0.8rem">National Service Scheme</div>
+                </label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-check p-3 rounded" style="background:#f8f9fa">
+                <input class="form-check-input" type="checkbox" name="has_ncc" id="ncc">
+                <label class="form-check-label fw-bold" for="ncc">
+                  <i class="fas fa-shield-alt me-2 text-danger"></i>NCC
+                  <div class="text-muted" style="font-size:0.8rem">National Cadet Corps</div>
+                </label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-check p-3 rounded" style="background:#f8f9fa">
+                <input class="form-check-input" type="checkbox" name="has_ngo" id="ngo">
+                <label class="form-check-label fw-bold" for="ngo">
+                  <i class="fas fa-hands-helping me-2 text-danger"></i>NGO
+                  <div class="text-muted" style="font-size:0.8rem">Non-Govt Organisation</div>
+                </label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-check p-3 rounded" style="background:#f8f9fa">
+                <input class="form-check-input" type="checkbox" name="has_scouts" id="scouts">
+                <label class="form-check-label fw-bold" for="scouts">
+                  <i class="fas fa-campground me-2 text-danger"></i>Scouts / Guides
+                  <div class="text-muted" style="font-size:0.8rem">Bharat Scouts & Guides</div>
+                </label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-check p-3 rounded" style="background:#f8f9fa">
+                <input class="form-check-input" type="checkbox" name="has_red_cross" id="redcross">
+                <label class="form-check-label fw-bold" for="redcross">
+                  <i class="fas fa-plus-square me-2 text-danger"></i>Red Cross
+                  <div class="text-muted" style="font-size:0.8rem">Indian Red Cross</div>
+                </label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-check p-3 rounded" style="background:#f8f9fa">
+                <input class="form-check-input" type="checkbox" name="has_civil_defence" id="civil">
+                <label class="form-check-label fw-bold" for="civil">
+                  <i class="fas fa-hard-hat me-2 text-danger"></i>Civil Defence
+                  <div class="text-muted" style="font-size:0.8rem">Civil Defence Corps</div>
+                </label>
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Any Other Organisation</label>
+              <input type="text" name="other_organisation" class="form-control"
+                     placeholder="e.g. Lions Club, Rotary, Local Welfare Association">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 4: Skills -->
+        <div class="card p-4 mb-4">
+          <h5 class="fw-bold mb-4" style="color:#e74c3c">
+            <i class="fas fa-tools me-2"></i>Skills & Capabilities
+          </h5>
+
+          <div class="mb-4">
+            <label class="form-label fw-bold">Type of Help You Can Provide</label>
+            <p class="text-muted small mb-3">Select all that apply:</p>
+            <div class="row g-2">
+              <div class="col-md-4">
+                <div class="form-check p-2 rounded" style="background:#fff5f5">
+                  <input class="form-check-input" type="checkbox" name="help_types" value="rescue" id="rescue">
+                  <label class="form-check-label small" for="rescue">
+                    <i class="fas fa-life-ring me-1 text-danger"></i>Search & Rescue
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check p-2 rounded" style="background:#fff5f5">
+                  <input class="form-check-input" type="checkbox" name="help_types" value="medical" id="medical">
+                  <label class="form-check-label small" for="medical">
+                    <i class="fas fa-heartbeat me-1 text-danger"></i>Medical Assistance
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check p-2 rounded" style="background:#fff5f5">
+                  <input class="form-check-input" type="checkbox" name="help_types" value="food" id="food">
+                  <label class="form-check-label small" for="food">
+                    <i class="fas fa-utensils me-1 text-danger"></i>Food Distribution
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check p-2 rounded" style="background:#fff5f5">
+                  <input class="form-check-input" type="checkbox" name="help_types" value="shelter" id="shelter">
+                  <label class="form-check-label small" for="shelter">
+                    <i class="fas fa-home me-1 text-danger"></i>Shelter Management
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check p-2 rounded" style="background:#fff5f5">
+                  <input class="form-check-input" type="checkbox" name="help_types" value="counseling" id="counseling">
+                  <label class="form-check-label small" for="counseling">
+                    <i class="fas fa-brain me-1 text-danger"></i>Counseling
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check p-2 rounded" style="background:#fff5f5">
+                  <input class="form-check-input" type="checkbox" name="help_types" value="driving" id="driving">
+                  <label class="form-check-label small" for="driving">
+                    <i class="fas fa-car me-1 text-danger"></i>Transportation
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check p-2 rounded" style="background:#fff5f5">
+                  <input class="form-check-input" type="checkbox" name="help_types" value="logistics" id="logistics">
+                  <label class="form-check-label small" for="logistics">
+                    <i class="fas fa-boxes me-1 text-danger"></i>Logistics
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check p-2 rounded" style="background:#fff5f5">
+                  <input class="form-check-input" type="checkbox" name="help_types" value="teaching" id="teaching">
+                  <label class="form-check-label small" for="teaching">
+                    <i class="fas fa-chalkboard-teacher me-1 text-danger"></i>Child Care
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check p-2 rounded" style="background:#fff5f5">
+                  <input class="form-check-input" type="checkbox" name="help_types" value="cleanup" id="cleanup">
+                  <label class="form-check-label small" for="cleanup">
+                    <i class="fas fa-broom me-1 text-danger"></i>Cleanup
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Special Skills -->
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-bold">Special Skills</label>
+              <input type="text" name="skills" class="form-control"
+                     placeholder="e.g. Boat Driving, Chainsaw Operation, Ham Radio, Sign Language" required>
+            </div>
+            <div class="col-md-4">
+              <div class="form-check p-3 rounded" style="background:#f0fdf4">
+                <input class="form-check-input" type="checkbox" name="has_first_aid" id="firstaid">
+                <label class="form-check-label fw-bold small" for="firstaid">
+                  <i class="fas fa-first-aid me-1 text-success"></i>First Aid Certified
+                </label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-check p-3 rounded" style="background:#f0fdf4">
+                <input class="form-check-input" type="checkbox" name="has_swimming" id="swimming">
+                <label class="form-check-label fw-bold small" for="swimming">
+                  <i class="fas fa-swimming-pool me-1 text-success"></i>Can Swim
+                </label>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-check p-3 rounded" style="background:#f0fdf4">
+                <input class="form-check-input" type="checkbox" name="has_driving" id="drivinglicense">
+                <label class="form-check-label fw-bold small" for="drivinglicense">
+                  <i class="fas fa-id-card me-1 text-success"></i>Driving License
+                </label>
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Languages Known</label>
+              <input type="text" name="languages" class="form-control"
+                     value="Malayalam, English"
+                     placeholder="e.g. Malayalam, English, Tamil, Hindi">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 5: Availability -->
+        <div class="card p-4 mb-4">
+          <h5 class="fw-bold mb-4" style="color:#e74c3c">
+            <i class="fas fa-calendar-alt me-2"></i>Availability
+          </h5>
+          <div class="row g-3">
+            <div class="col-md-5">
+              <label class="form-label">Available From</label>
+              <input type="date" name="available_from" class="form-control" required>
+            </div>
+            <div class="col-md-5">
+              <label class="form-label">Available Until</label>
+              <input type="date" name="available_until" class="form-control" required>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="full_time" id="fulltime">
+                <label class="form-check-label small fw-bold" for="fulltime">Full Time</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 6: ID Proof -->
+        <div class="card p-4 mb-4">
+          <h5 class="fw-bold mb-4" style="color:#e74c3c">
+            <i class="fas fa-id-card me-2"></i>Identity Verification
+          </h5>
+          <div class="col-12">
+            <label class="form-label">Aadhaar / Voter ID / PAN Number</label>
+            <input type="text" name="id_proof_number" class="form-control form-control-lg"
+                   placeholder="Enter your ID number" required>
+            <small class="text-muted">
+              <i class="fas fa-lock me-1"></i>Your ID is kept private and used only for verification
+            </small>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-donate w-100 btn-lg py-3">
+          <i class="fas fa-people-carry me-2"></i>Submit Volunteer Registration
+        </button>
+
+        <p class="text-center text-muted small mt-3">
+          <i class="fas fa-info-circle me-1"></i>
+          Your registration will be reviewed by admin within 24 hours
+        </p>
+
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

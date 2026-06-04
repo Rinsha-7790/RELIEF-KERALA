@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+<div style="background:linear-gradient(135deg,#e74c3c,#c0392b);padding:60px 0">
+  <div class="container text-white">
+    <div class="d-flex align-items-center gap-4">
+      <div style="background:rgba(255,255,255,0.2);width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center">
+        <i class="fas fa-user" style="font-size:2.5rem"></i>
+      </div>
+      <div>
+        <h1 class="fw-bold mb-1">{{ user.get_full_name|default:user.username }}</h1>
+        <p style="opacity:0.8" class="mb-1"><i class="fas fa-envelope me-2"></i>{{ user.email }}</p>
+        <p style="opacity:0.8" class="mb-0"><i class="fas fa-phone me-2"></i>{{ user.phone|default:"Not provided" }}</p>
+      </div>
+      <div class="ms-auto">
+        <span class="badge px-4 py-2 fs-6" style="background:rgba(255,255,255,0.2)">
+          {% if user.role == 'volunteer' %}<i class="fas fa-hands-helping me-2"></i>Volunteer
+          {% elif user.role == 'admin' %}<i class="fas fa-shield-alt me-2"></i>Admin
+          {% else %}<i class="fas fa-heart me-2"></i>Donor{% endif %}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container mt-5 mb-5">
+  <div class="row g-4 mb-5">
+    <div class="col-md-3">
+      <div class="card p-4 text-center" style="background:#fff5f5">
+        <i class="fas fa-rupee-sign fa-2x mb-3" style="color:#e74c3c"></i>
+        <h3 class="fw-bold text-danger">Rs{{ total_donated }}</h3>
+        <p class="text-muted mb-0 small">Total Donated</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-4 text-center" style="background:#f0fdf4">
+        <i class="fas fa-hand-holding-usd fa-2x mb-3 text-success"></i>
+        <h3 class="fw-bold text-success">{{ donation_count }}</h3>
+        <p class="text-muted mb-0 small">Money Donations</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-4 text-center" style="background:#eff6ff">
+        <i class="fas fa-boxes fa-2x mb-3 text-primary"></i>
+        <h3 class="fw-bold text-primary">{{ item_count }}</h3>
+        <p class="text-muted mb-0 small">Item Donations</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-4 text-center" style="background:#fffbeb">
+        <i class="fas fa-campground fa-2x mb-3 text-warning"></i>
+        <h3 class="fw-bold text-warning">{{ donation_count }}</h3>
+        <p class="text-muted mb-0 small">Camps Helped</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-8">
+      <div class="card p-4 mb-4">
+        <h5 class="fw-bold mb-4">
+          <i class="fas fa-hand-holding-usd me-2 text-danger"></i>Money Donation History
+        </h5>
+        {% if money_donations %}
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead style="background:#f8f9fa">
+              <tr><th>Date</th><th>Amount</th><th>Camp</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              {% for d in money_donations %}
+              <tr>
+                <td class="small text-muted">{{ d.date|date:"d M Y" }}</td>
+                <td class="fw-bold text-success">Rs{{ d.amount }}</td>
+                <td class="small">{{ d.camp.name|default:"General Fund" }}</td>
+                <td>
+                  <span class="badge {% if d.status == 'received' %}bg-success{% else %}bg-warning{% endif %}">
+                    {{ d.get_status_display }}
+                  </span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center p-4">
+          <i class="fas fa-hand-holding-usd fa-3x text-muted mb-3 d-block"></i>
+          <p class="text-muted">No money donations yet</p>
+          <a href="{% url 'money_donate' %}" class="btn btn-donate">Make Your First Donation</a>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="card p-4">
+        <h5 class="fw-bold mb-4">
+          <i class="fas fa-boxes me-2 text-danger"></i>Item Donation History
+        </h5>
+        {% if item_donations %}
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead style="background:#f8f9fa">
+              <tr><th>Date</th><th>Item</th><th>Quantity</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              {% for d in item_donations %}
+              <tr>
+                <td class="small text-muted">{{ d.date|date:"d M Y" }}</td>
+                <td class="fw-bold">{{ d.item_name }}</td>
+                <td class="small">{{ d.quantity }} {{ d.unit }}</td>
+                <td>
+                  <span class="badge {% if d.status == 'distributed' %}bg-success{% else %}bg-secondary{% endif %}">
+                    {{ d.get_status_display }}
+                  </span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center p-4">
+          <i class="fas fa-boxes fa-3x text-muted mb-3 d-block"></i>
+          <p class="text-muted">No item donations yet</p>
+          <a href="{% url 'item_donate' %}" class="btn btn-donate">Donate Items</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      {% if volunteer_profile %}
+      <div class="card p-4 mb-4">
+        <h5 class="fw-bold mb-3">
+          <i class="fas fa-hands-helping me-2 text-danger"></i>Volunteer Status
+        </h5>
+        <span class="badge {% if volunteer_profile.is_approved %}bg-success{% else %}bg-warning{% endif %} px-3 py-2 fs-6 mb-3 d-inline-block">
+          {% if volunteer_profile.is_approved %}
+            <i class="fas fa-check me-1"></i>Approved
+          {% else %}
+            <i class="fas fa-clock me-1"></i>Pending Approval
+          {% endif %}
+        </span>
+        <p class="small mb-2">
+          <i class="fas fa-tools me-2 text-danger"></i>
+          <strong>Skills:</strong> {{ volunteer_profile.skills }}
+        </p>
+        <p class="small mb-2">
+          <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+          <strong>Location:</strong> {{ volunteer_profile.location }}
+        </p>
+        {% if volunteer_profile.assigned_camp %}
+        <div class="mt-3 p-3 rounded-3" style="background:#f0fdf4">
+          <p class="small fw-bold text-success mb-1">
+            <i class="fas fa-campground me-2"></i>Assigned Camp
+          </p>
+          <p class="small mb-0">{{ volunteer_profile.assigned_camp.name }}</p>
+        </div>
+        {% endif %}
+      </div>
+      {% else %}
+      <div class="card p-4 mb-4" style="background:#fff5f5;border:1px solid #fecaca !important">
+        <h6 class="fw-bold text-danger mb-2">
+          <i class="fas fa-hands-helping me-2"></i>Become a Volunteer
+        </h6>
+        <p class="small text-muted mb-3">Register as a volunteer and help on the ground</p>
+        <a href="{% url 'volunteer_register' %}" class="btn btn-donate w-100">Register Now</a>
+      </div>
+      {% endif %}
+
+      <div class="card p-4">
+        <h5 class="fw-bold mb-3">
+          <i class="fas fa-bolt me-2 text-danger"></i>Quick Actions
+        </h5>
+        <div class="d-grid gap-2">
+          <a href="{% url 'money_donate' %}" class="btn btn-donate">
+            <i class="fas fa-hand-holding-usd me-2"></i>Donate Money
+          </a>
+          <a href="{% url 'item_donate' %}" class="btn btn-outline-red">
+            <i class="fas fa-boxes me-2"></i>Donate Items
+          </a>
+          <a href="{% url 'camp_list' %}" class="btn btn-outline-secondary" style="border-radius:10px">
+            <i class="fas fa-campground me-2"></i>View Camps
+          </a>
+          <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary" style="border-radius:10px">
+            <i class="fas fa-chart-bar me-2"></i>Transparency
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

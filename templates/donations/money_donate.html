@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% block title %}Donate Money{% endblock %}
+{% block content %}
+
+<!-- Header -->
+<div style="background:linear-gradient(135deg,#e74c3c,#c0392b);padding:60px 0">
+  <div class="container text-center text-white">
+    <div style="background:rgba(255,255,255,0.2);width:80px;height:80px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+      <i class="fas fa-hand-holding-usd" style="font-size:2.5rem"></i>
+    </div>
+    <h1 class="fw-bold">Donate Money</h1>
+    <p style="opacity:0.9">Your donation reaches verified relief camps instantly</p>
+  </div>
+</div>
+
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-md-7">
+
+      <!-- Trust badges -->
+      <div class="d-flex gap-3 justify-content-center mb-4 flex-wrap">
+        <div class="d-flex align-items-center gap-2 px-3 py-2 rounded-pill" style="background:#f0fdf4;color:#16a34a;font-size:0.85rem;font-weight:600">
+          <i class="fas fa-lock"></i> 100% Secure
+        </div>
+        <div class="d-flex align-items-center gap-2 px-3 py-2 rounded-pill" style="background:#eff6ff;color:#2563eb;font-size:0.85rem;font-weight:600">
+          <i class="fas fa-eye"></i> Fully Transparent
+        </div>
+        <div class="d-flex align-items-center gap-2 px-3 py-2 rounded-pill" style="background:#fff5f5;color:#e74c3c;font-size:0.85rem;font-weight:600">
+          <i class="fas fa-bolt"></i> Instant Transfer
+        </div>
+      </div>
+
+      <div class="card p-5">
+        <form method="POST">
+          {% csrf_token %}
+
+          <!-- Quick amount buttons -->
+          <div class="mb-4">
+            <label class="form-label">
+              <i class="fas fa-rupee-sign me-2 text-danger"></i>Select Amount
+            </label>
+            <div class="d-flex gap-2 flex-wrap mb-3">
+              <button type="button" class="btn btn-outline-danger rounded-pill quick-amount" data-amount="500">₹500</button>
+              <button type="button" class="btn btn-outline-danger rounded-pill quick-amount" data-amount="1000">₹1,000</button>
+              <button type="button" class="btn btn-outline-danger rounded-pill quick-amount" data-amount="2000">₹2,000</button>
+              <button type="button" class="btn btn-outline-danger rounded-pill quick-amount" data-amount="5000">₹5,000</button>
+            </div>
+            <input type="number" name="amount" id="amount" class="form-control form-control-lg"
+                   placeholder="Or enter custom amount" min="1" required>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">
+              <i class="fas fa-user me-2 text-danger"></i>Your Name
+            </label>
+            <input type="text" name="donor_name" class="form-control form-control-lg"
+                   placeholder="Enter your full name"
+                   value="{{ donor_name }}" required>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">
+              <i class="fas fa-campground me-2 text-danger"></i>Select Camp (optional)
+            </label>
+            <select name="camp" class="form-select form-select-lg">
+              <option value="">-- Donate to General Fund --</option>
+              {% for camp in camps %}
+              <option value="{{ camp.pk }}">🏕️ {{ camp.name }} — {{ camp.district }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">
+              <i class="fas fa-tag me-2 text-danger"></i>Purpose (optional)
+            </label>
+            <input type="text" name="purpose" class="form-control form-control-lg"
+                   placeholder="e.g. Food, Medicine, General Relief">
+          </div>
+
+          <!-- Payment methods -->
+          <div class="mb-4 p-3 rounded-3" style="background:#f8f9fa">
+            <p class="fw-bold mb-2 small text-muted">ACCEPTED PAYMENT METHODS</p>
+            <div class="d-flex gap-3 flex-wrap align-items-center">
+              <span class="badge bg-white text-dark border px-3 py-2">
+                <i class="fab fa-google-pay me-1" style="color:#4285f4"></i>GPay
+              </span>
+              <span class="badge bg-white text-dark border px-3 py-2">
+                <i class="fas fa-mobile-alt me-1" style="color:#6739b7"></i>PhonePe
+              </span>
+              <span class="badge bg-white text-dark border px-3 py-2">
+                <i class="fas fa-university me-1" style="color:#0066cc"></i>Net Banking
+              </span>
+              <span class="badge bg-white text-dark border px-3 py-2">
+                <i class="far fa-credit-card me-1" style="color:#e74c3c"></i>Card
+              </span>
+              <span class="badge bg-white text-dark border px-3 py-2">
+                <i class="fas fa-qrcode me-1" style="color:#333"></i>UPI
+              </span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-donate w-100 btn-lg py-3">
+            <i class="fas fa-heart me-2"></i>Proceed to Pay
+          </button>
+
+          <p class="text-center text-muted small mt-3">
+            <i class="fas fa-shield-alt me-1 text-success"></i>
+            Secured by Razorpay · 256-bit SSL encryption
+          </p>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Side info -->
+    <div class="col-md-4 mt-4 mt-md-0">
+      <div class="card p-4 mb-3">
+        <h6 class="fw-bold mb-3">
+          <i class="fas fa-info-circle me-2 text-danger"></i>Where does it go?
+        </h6>
+        <div class="d-flex align-items-start gap-3 mb-3">
+          <div style="background:#fff5f5;padding:8px;border-radius:8px;min-width:36px;text-align:center">
+            <i class="fas fa-utensils text-danger"></i>
+          </div>
+          <div>
+            <p class="fw-bold mb-0 small">Food and Water</p>
+            <p class="text-muted small mb-0">Meals and clean water for families</p>
+          </div>
+        </div>
+        <div class="d-flex align-items-start gap-3 mb-3">
+          <div style="background:#fff5f5;padding:8px;border-radius:8px;min-width:36px;text-align:center">
+            <i class="fas fa-first-aid text-danger"></i>
+          </div>
+          <div>
+            <p class="fw-bold mb-0 small">Medical Aid</p>
+            <p class="text-muted small mb-0">Medicine and first aid supplies</p>
+          </div>
+        </div>
+        <div class="d-flex align-items-start gap-3">
+          <div style="background:#fff5f5;padding:8px;border-radius:8px;min-width:36px;text-align:center">
+            <i class="fas fa-home text-danger"></i>
+          </div>
+          <div>
+            <p class="fw-bold mb-0 small">Shelter</p>
+            <p class="text-muted small mb-0">Blankets, tents and essentials</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <h6 class="fw-bold mb-3">
+          <i class="fas fa-chart-pie me-2 text-danger"></i>Fund Usage
+        </h6>
+        <div class="mb-2">
+          <div class="d-flex justify-content-between mb-1">
+            <small>Food and Water</small><small class="fw-bold">40%</small>
+          </div>
+          <div class="progress">
+            <div class="progress-bar bg-danger" style="width:40%"></div>
+          </div>
+        </div>
+        <div class="mb-2">
+          <div class="d-flex justify-content-between mb-1">
+            <small>Medical</small><small class="fw-bold">30%</small>
+          </div>
+          <div class="progress">
+            <div class="progress-bar bg-warning" style="width:30%"></div>
+          </div>
+        </div>
+        <div class="mb-2">
+          <div class="d-flex justify-content-between mb-1">
+            <small>Shelter</small><small class="fw-bold">20%</small>
+          </div>
+          <div class="progress">
+            <div class="progress-bar bg-success" style="width:20%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="d-flex justify-content-between mb-1">
+            <small>Operations</small><small class="fw-bold">10%</small>
+          </div>
+          <div class="progress">
+            <div class="progress-bar bg-info" style="width:10%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Quick amount buttons
+  document.querySelectorAll('.quick-amount').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.getElementById('amount').value = this.dataset.amount;
+      document.querySelectorAll('.quick-amount').forEach(b => {
+        b.classList.remove('btn-danger');
+        b.classList.add('btn-outline-danger');
+      });
+      this.classList.remove('btn-outline-danger');
+      this.classList.add('btn-danger');
+    });
+  });
+</script>
+{% endblock %}
