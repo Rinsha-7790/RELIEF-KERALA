@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import VolunteerProfile
@@ -52,3 +52,65 @@ def volunteer_register(request):
 
 def volunteer_success(request):
     return render(request, 'volunteers/success.html')
+
+@login_required
+def approve_volunteer(request, pk):
+    if not (request.user.is_admin_user() or request.user.is_staff):
+        messages.error(request, "Access denied.")
+        return redirect('home')
+
+    volunteer = get_object_or_404(VolunteerProfile, pk=pk)
+    volunteer.is_approved = True
+    volunteer.save()
+    messages.success(request, f"Volunteer {volunteer.full_name} has been approved.")
+    return redirect('admin_dashboard')
+
+@login_required
+def reject_volunteer(request, pk):
+    if not (request.user.is_admin_user() or request.user.is_staff):
+        messages.error(request, "Access denied.")
+        return redirect('home')
+
+    volunteer = get_object_or_404(VolunteerProfile, pk=pk)
+    name = volunteer.full_name
+    volunteer.delete()
+    messages.success(request, f"Volunteer registration for {name} has been rejected.")
+    return redirect('admin_dashboard')
+
+@login_required
+def assign_volunteer_camp(request):
+    if request.user.role not in ('camp_head', 'admin'):
+        messages.error(request, "Access denied.")
+        return redirect('home')
+
+    if request.method == 'POST':
+        from django.shortcuts import get_object_or_404
+        volunteer_id = request.POST.get('volunteer_id')
+        camp = getattr(request.user, 'camp', None)
+        if volunteer_id and camp:
+            volunteer = get_object_or_404(VolunteerProfile, id=volunteer_id)
+            volunteer.assigned_camp = camp
+            volunteer.save()
+            messages.success(request, f"Volunteer {volunteer.full_name} assigned to your camp successfully!")
+        else:
+            messages.error(request, "Invalid volunteer selection or camp.")
+
+    return redirect('camp_head_dashboard')
+
+@login_required
+def unassign_volunteer_camp(request, volunteer_id):
+    if request.user.role not in ('camp_head', 'admin'):
+        messages.error(request, "Access denied.")
+        return redirect('home')
+
+    from django.shortcuts import get_object_or_404
+    volunteer = get_object_or_404(VolunteerProfile, id=volunteer_id)
+    camp = getattr(request.user, 'camp', None)
+    if request.user.role == 'admin' or (camp and volunteer.assigned_camp == camp):
+        volunteer.assigned_camp = None
+        volunteer.save()
+        messages.success(request, f"Volunteer {volunteer.full_name} removed from your camp.")
+    else:
+        messages.error(request, "Access denied or mismatch in camp assignment.")
+
+    return redirect('camp_head_dashboard')

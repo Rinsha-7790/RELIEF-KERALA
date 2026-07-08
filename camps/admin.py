@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from .models import Camp, Need, EmergencyAlert
+from .models import Camp, Need
 
 class CampAdminForm(forms.ModelForm):
     contact_phone = forms.CharField(
@@ -32,8 +32,3 @@ class CampAdmin(admin.ModelAdmin):
 class NeedAdmin(admin.ModelAdmin):
     list_display = ['item', 'camp', 'quantity_needed', 'quantity_received', 'priority', 'is_fulfilled']
     list_filter = ['priority', 'is_fulfilled']
-
-@admin.register(EmergencyAlert)
-class EmergencyAlertAdmin(admin.ModelAdmin):
-    list_display = ['message', 'level', 'is_active', 'created_at']
-    list_filter = ['level', 'is_active']

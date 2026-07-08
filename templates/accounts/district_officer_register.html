@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% block title %}District Officer Registration{% endblock %}
+
+{% block content %}
+
+<div style="background:linear-gradient(135deg,#c0392b,#962d22);padding:60px 0">
+  <div class="container text-center text-white">
+    <div style="background:rgba(255,255,255,0.1);width:80px;height:80px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+      <i class="fas fa-users-cog" style="font-size:2.5rem"></i>
+    </div>
+    <h1 class="fw-bold">District Officer Registration</h1>
+    <p style="opacity:0.9">Register as a District Officer to approve verified relief camps</p>
+  </div>
+</div>
+
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-md-7">
+
+      {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} border-0 mb-4">
+        {{ message }}
+      </div>
+      {% endfor %}
+      {% endif %}
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-5">
+
+          <h4 class="fw-bold mb-1">Register as District Officer</h4>
+          <p class="text-muted small mb-4">
+            Create an account to approve relief camps in your designated district.
+          </p>
+
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <h6 class="fw-bold text-danger mb-3">
+              <i class="fas fa-id-card me-2"></i>Officer Information
+            </h6>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">
+                Officer Name <span class="text-danger">*</span>
+              </label>
+              <input type="text" name="contact_person" class="form-control form-control-lg"
+                     placeholder="e.g. Sunil Dutt" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">
+                Designated District <span class="text-danger">*</span>
+              </label>
+              <select name="district" class="form-select form-select-lg" required>
+                <option value="">-- Select District --</option>
+                {% for value, label in districts %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <hr class="my-4">
+
+            <h6 class="fw-bold text-danger mb-3">
+              <i class="fas fa-lock me-2"></i>Login & Contact Details
+            </h6>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">
+                Phone Number <span class="text-danger">*</span>
+              </label>
+              <input type="text" name="phone" class="form-control form-control-lg"
+                     placeholder="10 digit phone number"
+                     oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+                     maxlength="10" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">
+                Email Address <span class="text-danger">*</span>
+              </label>
+              <input type="email" name="email" class="form-control form-control-lg"
+                     placeholder="e.g. officer@domain.com" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">
+                Employee / Government ID Number <span class="text-danger">*</span>
+              </label>
+              <input type="text" name="employee_id" class="form-control form-control-lg"
+                     placeholder="e.g. DO-12345" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">
+                Official ID Proof (Document/Image) <span class="text-danger">*</span>
+              </label>
+              <input type="file" name="id_proof" class="form-control form-control-lg" required>
+              <div class="form-text small text-muted">Upload a copy of your department ID card or authorization letter (PDF or Image).</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">
+                Username <span class="text-danger">*</span>
+              </label>
+              <input type="text" name="username" class="form-control form-control-lg"
+                     placeholder="Choose a username for login" required>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold">
+                Password <span class="text-danger">*</span>
+              </label>
+              <input type="password" name="password" class="form-control form-control-lg"
+                     placeholder="Choose a strong password" required>
+            </div>
+
+            <div class="alert alert-info border-0 small">
+              <i class="fas fa-info-circle me-2"></i>
+              Once registered, your account details and ID proof will be reviewed by administrators. You will be able to log in once your account is approved.
+            </div>
+
+            <button type="submit" class="btn btn-donate w-100 btn-lg fw-bold py-3">
+              <i class="fas fa-check-circle me-2"></i>Register District Officer
+            </button>
+
+          </form>
+
+          <div class="text-center mt-4">
+            <p class="text-muted small">
+              Already registered?
+              <a href="{% url 'staff_login' %}" class="text-danger fw-semibold">Login here</a>
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Side info -->
+    <div class="col-md-4 mt-4 mt-md-0">
+      <div class="card border-0 shadow-sm p-4 mb-3">
+        <h6 class="fw-bold mb-3">
+          <i class="fas fa-route me-2 text-danger"></i>Your Approval Workflow
+        </h6>
+        <div class="d-flex gap-3 mb-3">
+          <div style="background:#c0392b;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;min-width:28px">1</div>
+          <p class="small mb-0">Field Officer verifies a relief camp (status: <strong>Verified</strong>).</p>
+        </div>
+        <div class="d-flex gap-3 mb-3">
+          <div style="background:#c0392b;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;min-width:28px">2</div>
+          <p class="small mb-0">You perform final review and authorize the camp's operational status.</p>
+        </div>
+        <div class="d-flex gap-3">
+          <div style="background:#16a34a;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;min-width:28px">✓</div>
+          <p class="small mb-0">You mark the camp as <strong>Approved</strong>. It now becomes fully visible to the public.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

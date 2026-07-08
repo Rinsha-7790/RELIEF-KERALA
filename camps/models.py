@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 KERALA_DISTRICTS = [
     ('Alappuzha', 'Alappuzha'),
@@ -18,37 +19,70 @@ KERALA_DISTRICTS = [
 ]
 
 class Camp(models.Model):
-    name = models.CharField(max_length=200)
-    location = models.CharField(max_length=300)
-    district = models.CharField(
-        max_length=100,
-        choices=KERALA_DISTRICTS,
-        default='Kozhikode'
-    )
-    people_count = models.PositiveIntegerField(default=0)
+    STATUS_CHOICES = [
+        ('pending',  'Pending'),
+        ('verified', 'Verified'),
+        ('approved', 'Approved'),
+    ]
+
+    name           = models.CharField(max_length=200)
+    location       = models.CharField(max_length=300)
+    district       = models.CharField(max_length=100, choices=KERALA_DISTRICTS, default='Kozhikode')
+    people_count   = models.PositiveIntegerField(default=0)
     contact_person = models.CharField(max_length=100)
-    contact_phone = models.CharField(max_length=10)
-    is_active = models.BooleanField(default=True)
+    contact_phone  = models.CharField(max_length=10)
+    status         = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='created_camps'
+    )
+
+    # Links camp to its responsible panchayath officer
+    panchayath = models.ForeignKey(
+        'accounts.CustomUser',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        limit_choices_to={'role': 'panchayath_staff'},
+        related_name='managed_camps',
+        help_text='Panchayath officer responsible for verifying needs at this camp',
+    )
+
+    is_active  = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.name} - {self.district}"
 
+    def verified_needs(self):
+        return self.needs.filter(status='verified')
+
 
 class Need(models.Model):
     PRIORITY_CHOICES = [
         ('urgent', 'Urgent'),
         ('normal', 'Normal'),
-        ('low', 'Low'),
+        ('low',    'Low'),
     ]
-    camp = models.ForeignKey(Camp, on_delete=models.CASCADE, related_name='needs')
-    item = models.CharField(max_length=200)
-    quantity_needed = models.PositiveIntegerField()
-    quantity_received = models.PositiveIntegerField(default=0)
-    unit = models.CharField(max_length=50, default='units')
-    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='normal')
-    is_fulfilled = models.BooleanField(default=False)
+    STATUS_CHOICES = [
+        ('pending',  'Pending Panchayath Verification'),
+        ('verified', 'Verified'),
+        ('rejected', 'Rejected'),
+    ]
+
+    camp                      = models.ForeignKey(Camp, on_delete=models.CASCADE, related_name='needs')
+    status                    = models.CharField(max_length=20, choices=STATUS_CHOICES, default='verified')
+    verified_by_panchayath    = models.BooleanField(default=False)
+    verified_by_field_officer = models.BooleanField(default=False)
+    item                      = models.CharField(max_length=200)
+    quantity_needed           = models.PositiveIntegerField()
+    quantity_received         = models.PositiveIntegerField(default=0)
+    unit                      = models.CharField(max_length=50, default='units')
+    priority                  = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='normal')
+    is_fulfilled              = models.BooleanField(default=False)
 
     def remaining(self):
         return max(self.quantity_needed - self.quantity_received, 0)
@@ -64,13 +98,13 @@ class Need(models.Model):
 
 class EmergencyAlert(models.Model):
     LEVEL_CHOICES = [
-        ('info', 'Info (Blue)'),
+        ('info',    'Info (Blue)'),
         ('warning', 'Warning (Orange)'),
-        ('danger', 'Critical (Red)'),
+        ('danger',  'Critical (Red)'),
     ]
-    message = models.TextField()
-    level = models.CharField(max_length=10, choices=LEVEL_CHOICES, default='danger')
-    is_active = models.BooleanField(default=True)
+    message    = models.TextField()
+    level      = models.CharField(max_length=10, choices=LEVEL_CHOICES, default='danger')
+    is_active  = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

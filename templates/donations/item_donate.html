@@ -107,6 +107,7 @@
             </label>
             <select name="camp" class="form-select form-select-lg" required>
               <option value="">-- Select a Camp --</option>
+              <option value="general">🌍 General Fund — Any Camp in Need</option>
               {% for camp in camps %}
               <option value="{{ camp.pk }}">
                 🏕️ {{ camp.name }} — {{ camp.district }}
@@ -229,7 +230,7 @@
         </div>
         <div class="d-flex gap-3 mb-3">
           <div style="background:#e74c3c;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;min-width:28px">4</div>
-          <p class="small mb-0">Panchayath confirms delivery at camp</p>
+          <p class="small mb-0"><strong>Camp Head</strong> confirms delivery at camp</p>
         </div>
         <div class="d-flex gap-3">
           <div style="background:#16a34a;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;min-width:28px">✓</div>

@@ -84,24 +84,30 @@
         <div class="row g-3">
           {% for need in needs %}
           <div class="col-md-6">
-            <div class="card p-3 h-100" style="border-left:4px solid {% if need.priority == 'urgent' %}#e74c3c{% elif need.priority == 'normal' %}#f59e0b{% else %}#10b981{% endif %} !important">
+            <div class="card p-3 h-100" style="border-left:4px solid {% if need.is_fulfilled %}#10b981{% elif need.priority == 'urgent' %}#e74c3c{% elif need.priority == 'normal' %}#f59e0b{% else %}#10b981{% endif %} !important">
               <div class="d-flex justify-content-between align-items-start mb-2">
                 <h6 class="fw-bold mb-0">{{ need.item }}</h6>
-                <span class="badge {% if need.priority == 'urgent' %}bg-danger{% elif need.priority == 'normal' %}bg-warning{% else %}bg-success{% endif %} px-2 py-1" style="font-size:0.75rem">
-                  {{ need.get_priority_display }}
-                </span>
+                {% if need.is_fulfilled %}
+                  <span class="badge bg-success px-2 py-1" style="font-size:0.75rem">
+                    <i class="fas fa-check me-1"></i>Fulfilled
+                  </span>
+                {% else %}
+                  <span class="badge {% if need.priority == 'urgent' %}bg-danger{% elif need.priority == 'normal' %}bg-warning{% else %}bg-success{% endif %} px-2 py-1" style="font-size:0.75rem">
+                    {{ need.get_priority_display }}
+                  </span>
+                {% endif %}
               </div>
               <div class="d-flex justify-content-between mb-2">
                 <small class="text-muted">Needed: <strong>{{ need.quantity_needed }} {{ need.unit }}</strong></small>
                 <small class="text-muted">Got: <strong>{{ need.quantity_received }} {{ need.unit }}</strong></small>
               </div>
               <div class="progress mb-1">
-                <div class="progress-bar {% if need.priority == 'urgent' %}bg-danger{% else %}bg-success{% endif %}"
+                <div class="progress-bar {% if need.is_fulfilled %}bg-success{% elif need.priority == 'urgent' %}bg-danger{% else %}bg-success{% endif %}"
                      style="width:{{ need.percent_fulfilled }}%"></div>
               </div>
               <div class="d-flex justify-content-between">
                 <small class="text-muted">{{ need.percent_fulfilled }}% fulfilled</small>
-                <small class="text-muted">{{ need.remaining }} {{ need.unit }} needed</small>
+                <small class="text-muted">{% if need.is_fulfilled %}0 {{ need.unit }} needed{% else %}{{ need.remaining }} {{ need.unit }} needed{% endif %}</small>
               </div>
               {% if need.is_fulfilled %}
               <div class="mt-2">

@@ -27,15 +27,18 @@ class RegisterForm(UserCreationForm):
             'maxlength': '10'
         })
     )
-    role = forms.ChoiceField(choices=[
-        ('donor', 'Donor — I want to donate'),
-        ('volunteer', 'Volunteer — I want to help on ground'),
-    ])
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email:
+            if CustomUser.objects.filter(email=email).exists():
+                raise forms.ValidationError("A user with this email address already exists.")
+        return email
 
     class Meta:
         model = CustomUser
         fields = ['first_name', 'last_name', 'email',
-                  'phone', 'role', 'password1', 'password2']
+                  'phone', 'password1', 'password2']
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -43,12 +46,12 @@ class RegisterForm(UserCreationForm):
         username = base_username
         while CustomUser.objects.filter(username=username).exists():
             username = f"{base_username}_{str(uuid.uuid4())[:4]}"
-        user.username = username
-        user.email = self.cleaned_data['email']
+        user.username  = username
+        user.email     = self.cleaned_data['email']
         user.first_name = self.cleaned_data['first_name']
-        user.last_name = self.cleaned_data['last_name']
-        user.phone = self.cleaned_data['phone']
-        user.role = self.cleaned_data['role']
+        user.last_name  = self.cleaned_data['last_name']
+        user.phone     = self.cleaned_data['phone']
+        user.role      = 'donor'
         if commit:
             user.save()
         return user

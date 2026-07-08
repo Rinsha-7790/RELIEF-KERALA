@@ -57,12 +57,12 @@ class ItemDonation(models.Model):
     delivery_notes     = models.TextField(blank=True)
     tracking_id        = models.CharField(max_length=20, blank=True)
     panchayath = models.ForeignKey(
-    'accounts.CustomUser',
-    on_delete=models.SET_NULL,
-    null=True, blank=True,
-    limit_choices_to={'role': 'panchayath_staff'},
-    related_name='assigned_donations',
-)
+        'accounts.CustomUser',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        limit_choices_to={'role': 'panchayath_staff'},
+        related_name='assigned_donations',
+    )
 
     def save(self, *args, **kwargs):
         if not self.tracking_id:

@@ -1,0 +1,384 @@
+{% extends 'base.html' %}
+{% block title %}Officials Portal — Relief Kerala{% endblock %}
+{% block content %}
+
+<style>
+  .portal-hero {
+    background: linear-gradient(135deg, #0f172a 0%, #0f2952 60%, #0d3d3a 100%);
+    padding: 70px 0 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .portal-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 70% 50%, rgba(13,148,136,0.18) 0%, transparent 70%);
+  }
+  .gov-strip {
+    position: absolute; top: 0; left: 0; right: 0; height: 5px;
+    background: linear-gradient(90deg, #f97316, #ef4444, #a855f7, #0d9488);
+  }
+  .gov-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(13,148,136,0.15);
+    border: 1px solid rgba(13,148,136,0.4);
+    color: #5eead4;
+    padding: 6px 16px; border-radius: 20px;
+    font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .portal-icon {
+    width: 88px; height: 88px; margin: 0 auto 22px;
+    background: rgba(13,148,136,0.12);
+    border: 2px solid rgba(13,148,136,0.5);
+    border-radius: 22px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 30px rgba(13,148,136,0.3);
+  }
+
+  /* Role cards */
+  .role-card {
+    border-radius: 18px !important;
+    border: 1.5px solid #e2e8f0 !important;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06) !important;
+    transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s !important;
+    overflow: hidden;
+  }
+  .role-card:hover {
+    transform: translateY(-6px) !important;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.13) !important;
+    border-color: transparent !important;
+  }
+  .rch {
+    padding: 28px 0 22px;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 10px;
+  }
+  .rci {
+    width: 58px; height: 58px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.15);
+    font-size: 1.6rem; color: white;
+  }
+  .rcb { padding: 20px 22px 22px; }
+  .rcb h5 { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; color: #0f172a; }
+  .rcb p  { font-size: 0.83rem; color: #64748b; margin-bottom: 14px; line-height: 1.4; }
+  .bp {
+    display: inline-block; font-size: 0.72rem; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px; margin-bottom: 2px;
+  }
+  .btn-login {
+    display: block; text-align: center;
+    font-weight: 600; font-size: 0.88rem;
+    padding: 10px; border-radius: 10px;
+    border: none; cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    text-decoration: none;
+  }
+  .btn-login:hover { opacity: 0.88; transform: scale(0.98); }
+
+  .info-bar {
+    background: #f0fdfa; border: 1.5px solid #99f6e4;
+    border-radius: 12px; padding: 14px 20px;
+    font-size: 0.84rem; color: #0f766e;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  /* Access code gate */
+  .code-box {
+    background: #0f172a; border-radius: 18px; padding: 40px;
+    max-width: 420px; margin: 60px auto;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    border: 1px solid rgba(13,148,136,0.25);
+  }
+  .code-box input {
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(13,148,136,0.35);
+    color: white; border-radius: 10px;
+    padding: 12px 16px; width: 100%;
+    font-size: 1rem; letter-spacing: 0.12em;
+  }
+  .code-box input::placeholder { color: rgba(255,255,255,0.3); letter-spacing: normal; }
+  .code-box input:focus {
+    outline: none; border-color: #0d9488;
+    box-shadow: 0 0 0 3px rgba(13,148,136,0.2);
+  }
+  .code-box button {
+    background: #0d9488; color: white; border: none;
+    border-radius: 10px; padding: 12px;
+    font-weight: 700; font-size: 0.95rem;
+    width: 100%; cursor: pointer; margin-top: 12px;
+  }
+  .code-box button:hover { background: #0f766e; }
+
+  .notice-tile {
+    padding: 18px; background: #f8fafc;
+    border-radius: 14px; border: 1.5px solid #e2e8f0;
+  }
+</style>
+
+<!-- ── HERO ── -->
+<div class="portal-hero">
+  <div class="gov-strip"></div>
+  <div class="container text-center position-relative">
+    <div class="gov-badge">
+      <i class="fas fa-shield-alt"></i>
+      Government of Kerala &nbsp;·&nbsp; Disaster Management Authority
+    </div>
+    <div class="portal-icon">
+      <i class="fas fa-id-badge" style="font-size:2.4rem;color:#5eead4;"></i>
+    </div>
+    <h1 class="fw-bold text-white mb-2" style="font-size:2.1rem;">Officials Portal</h1>
+    <p style="color:rgba(255,255,255,0.6);max-width:540px;margin:0 auto;font-size:1rem;">
+      Secure access for authorised Relief Kerala staff, officers, and administrators.
+      Select your role to sign in.
+    </p>
+  </div>
+</div>
+
+{% if requires_code %}
+<!-- ── ACCESS CODE GATE ── -->
+<div class="code-box">
+  <div class="text-center mb-4">
+    <i class="fas fa-lock" style="font-size:2rem;color:#5eead4;"></i>
+    <h5 class="fw-bold text-white mt-3 mb-1">Restricted Access</h5>
+    <p style="color:#94a3b8;font-size:0.88rem;">
+      Enter the Officials Portal access code to continue.
+    </p>
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    <input type="password" name="access_code" placeholder="Access code" autofocus>
+    <button type="submit">
+      <i class="fas fa-unlock me-2"></i>Unlock Portal
+    </button>
+  </form>
+</div>
+
+{% else %}
+<!-- ── MAIN PORTAL ── -->
+<div class="container" style="max-width:1060px;padding-top:52px;padding-bottom:60px;">
+
+  <!-- Info bar -->
+  <div class="info-bar mb-5">
+    <i class="fas fa-info-circle fa-lg"></i>
+    <span>
+      This is a restricted page for authorised officials only.
+      Unauthorised access is a punishable offence under the IT Act, 2000.
+    </span>
+  </div>
+
+  <h6 class="fw-bold text-uppercase text-muted mb-4"
+      style="letter-spacing:0.08em;font-size:0.78rem;">
+    <i class="fas fa-sign-in-alt me-2"></i>Sign in to your portal
+  </h6>
+
+  <div class="row g-4">
+
+    <!-- ── Panchayath Officer ── -->
+    <div class="col-sm-6 col-lg-4">
+      <div class="card role-card h-100">
+        <div class="rch" style="background:linear-gradient(135deg,#1d4ed8,#7c3aed);">
+          <div class="rci"><i class="fas fa-building"></i></div>
+          <span class="text-white fw-bold"
+                style="font-size:0.78rem;letter-spacing:0.07em;opacity:0.85;">
+            PANCHAYATH OFFICER
+          </span>
+        </div>
+        <div class="rcb">
+          <h5>Panchayath Officer</h5>
+          <p>Manage item intake, dispatches, and donations for your panchayath area.</p>
+          <div class="mb-3">
+            <span class="bp" style="background:#dbeafe;color:#1d4ed8;">Item Dispatch</span>
+            <span class="bp" style="background:#f0fdf4;color:#15803d;">Donations</span>
+          </div>
+          <a href="{% url 'panchayath_login' %}" class="btn-login"
+             style="background:linear-gradient(135deg,#1d4ed8,#7c3aed);color:white;">
+            <i class="fas fa-sign-in-alt me-2"></i>Sign In
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Camp Head ── -->
+    <div class="col-sm-6 col-lg-4">
+      <div class="card role-card h-100">
+        <div class="rch" style="background:linear-gradient(135deg,#166534,#15803d);">
+          <div class="rci"><i class="fas fa-campground"></i></div>
+          <span class="text-white fw-bold"
+                style="font-size:0.78rem;letter-spacing:0.07em;opacity:0.85;">
+            CAMP COORDINATOR
+          </span>
+        </div>
+        <div class="rcb">
+          <h5>Camp Head</h5>
+          <p>Add and update camp needs, manage occupants at your camp. Needs go to Field Officer for verification.</p>
+          <div class="mb-3">
+            <span class="bp" style="background:#dcfce7;color:#166534;">Camp Needs</span>
+            <span class="bp" style="background:#fef9c3;color:#92400e;">Occupants</span>
+          </div>
+          <a href="{% url 'camp_login' %}" class="btn-login"
+             style="background:linear-gradient(135deg,#166534,#15803d);color:white;">
+            <i class="fas fa-sign-in-alt me-2"></i>Sign In
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Field Officer ── -->
+    <div class="col-sm-6 col-lg-4">
+      <div class="card role-card h-100">
+        <div class="rch" style="background:linear-gradient(135deg,#0e7490,#0d9488);">
+          <div class="rci"><i class="fas fa-user-shield"></i></div>
+          <span class="text-white fw-bold"
+                style="font-size:0.78rem;letter-spacing:0.07em;opacity:0.85;">
+            FIELD OFFICER
+          </span>
+        </div>
+        <div class="rcb">
+          <h5>Field Officer</h5>
+          <p>Create relief camps, approve camp heads, and verify needs submitted by camp heads.</p>
+          <div class="mb-3">
+            <span class="bp" style="background:#cffafe;color:#0e7490;">Create Camps</span>
+            <span class="bp" style="background:#dcfce7;color:#166534;">Camp Head Approvals</span>
+            <span class="bp" style="background:#ede9fe;color:#6d28d9;">Need Verification</span>
+          </div>
+          <a href="{% url 'field_login' %}" class="btn-login"
+             style="background:linear-gradient(135deg,#0e7490,#0d9488);color:white;">
+            <i class="fas fa-sign-in-alt me-2"></i>Sign In
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── District Officer ── -->
+    <div class="col-sm-6 col-lg-4">
+      <div class="card role-card h-100">
+        <div class="rch" style="background:linear-gradient(135deg,#9f1239,#be123c);">
+          <div class="rci"><i class="fas fa-users-cog"></i></div>
+          <span class="text-white fw-bold"
+                style="font-size:0.78rem;letter-spacing:0.07em;opacity:0.85;">
+            DISTRICT OFFICER
+          </span>
+        </div>
+        <div class="rcb">
+          <h5>District Officer</h5>
+          <p>Verify camps created by field officers, approve camp heads after field officer verification, and oversee district-level activities.</p>
+          <div class="mb-3">
+            <span class="bp" style="background:#ffe4e6;color:#9f1239;">District Camps</span>
+            <span class="bp" style="background:#fce7f3;color:#9d174d;">Approvals</span>
+            <span class="bp" style="background:#fef3c7;color:#92400e;">Oversight</span>
+          </div>
+          <a href="{% url 'district_login' %}" class="btn-login"
+             style="background:linear-gradient(135deg,#9f1239,#be123c);color:white;">
+            <i class="fas fa-sign-in-alt me-2"></i>Sign In
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Administrator ── -->
+    <div class="col-sm-6 col-lg-4">
+      <div class="card role-card h-100" style="border-color:#1e293b !important;">
+        <div class="rch"
+             style="background:linear-gradient(135deg,#0b0c10,#1e293b);
+                    border-bottom:2px solid #0d9488;">
+          <div class="rci" style="background:rgba(13,148,136,0.18);">
+            <i class="fas fa-terminal" style="color:#5eead4;"></i>
+          </div>
+          <span style="color:#5eead4;font-weight:700;
+                       font-size:0.78rem;letter-spacing:0.07em;">
+            ADMINISTRATOR
+          </span>
+        </div>
+        <div class="rcb">
+          <h5>Administrator</h5>
+          <p>Full system access — user management, alerts, all camps, reports, and controls.</p>
+          <div class="mb-3">
+            <span class="bp" style="background:#f0fdf4;color:#15803d;">Full Access</span>
+            <span class="bp" style="background:#fef9c3;color:#92400e;">System Control</span>
+          </div>
+          <a href="{% url 'admin_login' %}" class="btn-login"
+             style="background:linear-gradient(135deg,#0b0c10,#1e293b);
+                    color:#5eead4;border:1.5px solid #0d9488;">
+            <i class="fas fa-terminal me-2"></i>Sign In
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── New Official Register ── -->
+    <div class="col-sm-6 col-lg-4">
+      <div class="card role-card h-100"
+           style="border-style:dashed !important;background:#fafafa;">
+        <div class="rch" style="background:linear-gradient(135deg,#f1f5f9,#e2e8f0);">
+          <div class="rci" style="background:rgba(0,0,0,0.06);">
+            <i class="fas fa-question-circle" style="color:#94a3b8;"></i>
+          </div>
+          <span style="color:#94a3b8;font-weight:700;
+                       font-size:0.78rem;letter-spacing:0.07em;">
+            NEW OFFICIAL?
+          </span>
+        </div>
+        <div class="rcb">
+          <h5 style="color:#475569;">Register Your Account</h5>
+          <p style="color:#94a3b8;">
+            New officials must register and await approval before logging in.
+          </p>
+          <div class="d-grid gap-2">
+            <a href="{% url 'panchayath_register' %}" class="btn-login"
+               style="background:#f1f5f9;color:#475569;font-size:0.82rem;padding:8px;">
+              Panchayath Register
+            </a>
+            <a href="{% url 'camp_head_register' %}" class="btn-login"
+               style="background:#f1f5f9;color:#475569;font-size:0.82rem;padding:8px;">
+              Camp Head Register
+            </a>
+            <a href="{% url 'field_officer_register' %}" class="btn-login"
+               style="background:#f1f5f9;color:#475569;font-size:0.82rem;padding:8px;">
+              Field Officer Register
+            </a>
+            <a href="{% url 'district_officer_register' %}" class="btn-login"
+               style="background:#f1f5f9;color:#475569;font-size:0.82rem;padding:8px;">
+              District Officer Register
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /row -->
+
+  <!-- ── Security Notice ── -->
+  <div class="row g-3 text-center mt-5">
+    <div class="col-md-4">
+      <div class="notice-tile">
+        <i class="fas fa-lock text-danger mb-2" style="font-size:1.4rem;"></i>
+        <p class="mb-0 small text-muted">
+          Use your official government credentials. Never share your password with anyone.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="notice-tile">
+        <i class="fas fa-bookmark text-primary mb-2" style="font-size:1.4rem;"></i>
+        <p class="mb-0 small text-muted">
+          Bookmark this page. It is not publicly linked from the main website.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="notice-tile">
+        <i class="fas fa-headset text-success mb-2" style="font-size:1.4rem;"></i>
+        <p class="mb-0 small text-muted">
+          Access issues? Contact your district IT helpdesk or system administrator.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+{% endif %}
+
+{% endblock %}

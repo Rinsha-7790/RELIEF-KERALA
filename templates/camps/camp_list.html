@@ -48,9 +48,15 @@
             {% for need in camp.needs.all|slice:":3" %}
             <div class="d-flex justify-content-between align-items-center mb-1">
               <small>{{ need.item }}</small>
-              <span class="badge {% if need.priority == 'urgent' %}bg-danger{% elif need.priority == 'normal' %}bg-warning{% else %}bg-success{% endif %}" style="font-size:0.7rem">
-                {{ need.get_priority_display }}
-              </span>
+              {% if need.is_fulfilled %}
+                <span class="badge bg-success" style="font-size:0.7rem">
+                  <i class="fas fa-check me-1"></i>Fulfilled
+                </span>
+              {% else %}
+                <span class="badge {% if need.priority == 'urgent' %}bg-danger{% elif need.priority == 'normal' %}bg-warning{% else %}bg-success{% endif %}" style="font-size:0.7rem">
+                  {{ need.get_priority_display }}
+                </span>
+              {% endif %}
             </div>
             {% empty %}
             <small class="text-success"><i class="fas fa-check me-1"></i>No urgent needs</small>

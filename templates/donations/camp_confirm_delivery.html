@@ -1,18 +1,21 @@
 {% extends 'base.html' %}
-{% block title %}Mark Items Delivered{% endblock %}
+{% block title %}Confirm Delivery{% endblock %}
 
 {% block content %}
 <div class="container py-4" style="max-width:680px">
-  <a href="{% url 'panchayath_dashboard' %}" class="text-muted text-decoration-none small">
-    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+
+  <a href="{% url 'camp_head_dashboard' %}" class="text-muted text-decoration-none small">
+    <i class="fas fa-arrow-left me-1"></i>Back to Camp Dashboard
   </a>
+
   <div class="card border-0 shadow-sm mt-3">
     <div class="card-header bg-success bg-opacity-10 border-0 pt-3">
       <h4 class="fw-bold mb-0 text-success">
-        <i class="fas fa-check-circle me-2"></i>Confirm Delivery to Camp
+        <i class="fas fa-check-circle me-2"></i>Confirm Items Received at Camp
       </h4>
     </div>
     <div class="card-body">
+
       <div class="bg-light rounded p-3 mb-4 small">
         <div class="row g-2">
           <div class="col-6">
@@ -25,16 +28,33 @@
           </div>
           <div class="col-12">
             <span class="text-muted">Items:</span>
-            <span class="ms-1">{{ donation.item_name }} (Qty: {{ donation.quantity }} {{ donation.unit }})</span>
+            <span class="ms-1">{{ donation.item_name }}
+              (Qty: {{ donation.quantity }} {{ donation.unit }})</span>
           </div>
           <div class="col-6">
             <span class="text-muted">Donor:</span>
             <strong class="ms-1">{{ donation.donor_name }}</strong>
           </div>
           <div class="col-6">
-            <span class="text-muted">Dispatched By:</span>
-            <span class="ms-1">{{ donation.dispatched_by|default:"—" }}</span>
+            <span class="text-muted">From Panchayath:</span>
+            <span class="ms-1">
+              {% if donation.panchayath %}
+                {{ donation.panchayath.panchayath_name }}
+              {% else %}—{% endif %}
+            </span>
           </div>
+          {% if donation.dispatched_by %}
+          <div class="col-12">
+            <span class="text-muted">Dispatched By:</span>
+            <span class="ms-1">{{ donation.dispatched_by }}</span>
+          </div>
+          {% endif %}
+          {% if donation.delivery_notes %}
+          <div class="col-12">
+            <span class="text-muted">Notes:</span>
+            <span class="ms-1 fst-italic">{{ donation.delivery_notes }}</span>
+          </div>
+          {% endif %}
         </div>
       </div>
 
@@ -46,30 +66,32 @@
             Received By <span class="text-danger">*</span>
           </label>
           <input type="text" name="received_by" class="form-control form-control-lg"
-                 placeholder="Name of person who received at camp" required>
+                 placeholder="Your name — camp head or staff who verified items"
+                 required>
         </div>
 
         <div class="mb-4">
           <label class="form-label fw-semibold">Notes (optional)</label>
           <textarea name="notes" class="form-control" rows="2"
-                    placeholder="e.g. All items received in good condition"></textarea>
+                    placeholder="e.g. All 3 boxes received in good condition"></textarea>
         </div>
 
         <div class="alert alert-info border-0 small">
           <i class="fas fa-eye me-2"></i>
-          This will update the status to <strong>Delivered</strong> and
-          will be visible on the public transparency dashboard instantly.
+          Confirming delivery will update the status to
+          <strong>Delivered</strong> and notify the donor on their
+          tracking page instantly.
         </div>
 
         <div class="d-flex gap-2">
           <button type="submit" class="btn btn-success fw-semibold btn-lg">
             <i class="fas fa-check-circle me-2"></i>Confirm Delivery
           </button>
-          <a href="{% url 'panchayath_dashboard' %}" class="btn btn-outline-secondary">
-            Cancel
-          </a>
+          <a href="{% url 'camp_head_dashboard' %}"
+             class="btn btn-outline-secondary">Cancel</a>
         </div>
       </form>
+
     </div>
   </div>
 </div>

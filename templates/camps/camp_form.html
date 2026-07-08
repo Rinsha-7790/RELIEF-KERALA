@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div style="background:linear-gradient(135deg,#e74c3c,#c0392b);padding:60px 0">
+  <div class="container text-center text-white">
+    <div style="background:rgba(255,255,255,0.2);width:80px;height:80px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+      <i class="fas fa-campground" style="font-size:2.5rem"></i>
+    </div>
+    <h1 class="fw-bold">{{ title }}</h1>
+    <p style="opacity:0.9">Create a new relief camp. It will go through verification and approval workflow before listing publicly.</p>
+  </div>
+</div>
+
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        {% if user.role == 'admin' %}
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+          <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+        </a>
+        {% elif user.role == 'field_officer' %}
+        <a href="{% url 'field_officer_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+          <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+        </a>
+        {% else %}
+        <a href="{% url 'panchayath_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+          <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+        </a>
+        {% endif %}
+      </div>
+
+      {% if locked_district %}
+      <div class="alert alert-info border-0 small mb-3">
+        <i class="fas fa-map-marker-alt me-2"></i>
+        You can only create camps in your assigned district: <strong>{{ locked_district }}</strong>.
+        The district field has been pre-filled and locked.
+      </div>
+      {% endif %}
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-5">
+          <h4 class="fw-bold mb-4">Camp Details</h4>
+          
+          <form method="post" novalidate>
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger border-0 mb-4">
+              {% for error in form.non_field_errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+            {% endif %}
+
+            {% for field in form %}
+            <div class="mb-4">
+              <label class="form-label fw-semibold" for="{{ field.id_for_label }}">
+                {{ field.label }} {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+              </label>
+              {{ field }}
+              
+              {% if field.help_text %}
+              <div class="form-text text-muted small">{{ field.help_text }}</div>
+              {% endif %}
+              
+              {% for error in field.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+            {% endfor %}
+
+            <div class="alert alert-warning border-0 small mb-4">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              Upon submission, the camp will be registered as <strong>Pending</strong>.
+              A District Officer will perform verification, followed by Admin approval,
+              after which it will be visible to the public.
+            </div>
+
+            <button type="submit" class="btn btn-danger w-100 btn-lg fw-bold py-3">
+              <i class="fas fa-check-circle me-2"></i>Register Relief Camp
+            </button>
+          </form>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

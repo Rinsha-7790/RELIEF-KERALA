@@ -1,0 +1,339 @@
+{% extends 'base.html' %}
+{% block title %}District Officer Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div style="background:linear-gradient(135deg,#1a1a2e,#16213e);padding:50px 0;color:white">
+  <div class="container py-2">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h2 class="fw-bold mb-1">
+          <i class="fas fa-user-tie me-2 text-info"></i>District Officer Dashboard
+        </h2>
+        <p class="mb-0 opacity-75">
+          <i class="fas fa-map-marker-alt me-1"></i>District: <strong>{{ district }}</strong> — Verify camps &amp; approve camp coordinators
+        </p>
+      </div>
+      <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <span class="badge bg-light text-dark px-3 py-2 fs-6 me-2">
+          <i class="fas fa-campground me-1"></i>Total Camps: {{ activity_stats.total_camps }}
+        </span>
+        <span class="badge bg-warning text-dark px-3 py-2 fs-6">
+          <i class="fas fa-clock me-1"></i>Pending: {{ camps|length }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container my-5">
+
+  {% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4 border-0 shadow-sm">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <!-- ACTIVITY STATS CARDS -->
+  <div class="row g-3 mb-5">
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm text-center py-3">
+        <div class="fs-2 fw-bold text-warning">{{ activity_stats.total_camps }}</div>
+        <div class="small text-muted">Total Camps</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm text-center py-3">
+        <div class="fs-2 fw-bold text-success">{{ activity_stats.camps_approved }}</div>
+        <div class="small text-muted">Live Camps</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm text-center py-3">
+        <div class="fs-2 fw-bold text-info">{{ activity_stats.camp_heads_approved }}</div>
+        <div class="small text-muted">Camp Heads Approved</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm text-center py-3">
+        <div class="fs-2 fw-bold text-danger">{{ activity_stats.needs_pending }}</div>
+        <div class="small text-muted">Pending Needs</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PENDING CAMPS — awaiting district officer verification -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 pt-4 pb-2 px-4 d-flex justify-content-between align-items-center">
+      <div>
+        <h5 class="fw-semibold mb-0 text-warning">
+          <i class="fas fa-campground me-2"></i>Pending Camp Verifications
+        </h5>
+        <p class="text-muted small mb-0 mt-1">
+          Camps created by Field Officers awaiting your verification. Once you verify, the camp goes live immediately.
+        </p>
+      </div>
+      <span class="badge bg-warning text-dark px-3 py-2">{{ camps|length }} pending</span>
+    </div>
+    <div class="card-body p-0">
+      {% if camps %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="px-4">Camp Name</th>
+              <th>Location</th>
+              <th>Created By</th>
+              <th>People</th>
+              <th>Date</th>
+              <th class="px-4 text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for camp in camps %}
+            <tr>
+              <td class="px-4 fw-semibold">{{ camp.name }}</td>
+              <td>{{ camp.location }}</td>
+              <td class="small text-muted">
+                {% if camp.created_by %}{{ camp.created_by.contact_person|default:camp.created_by.username }}{% else %}—{% endif %}
+              </td>
+              <td>{{ camp.people_count|default:"—" }}</td>
+              <td class="small text-muted">{{ camp.created_at|date:"d M Y" }}</td>
+              <td class="px-4 text-end">
+                <form action="{% url 'verify_camp' camp.pk %}" method="post" class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-success"
+                          onclick="return confirm('Verify and approve camp \'{{ camp.name }}\'? It will go live immediately.')">
+                    <i class="fas fa-check me-1"></i>Verify &amp; Approve
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5 text-muted">
+        <i class="fas fa-check-circle fa-3x mb-3 d-block opacity-25"></i>
+        <h6>No pending camps</h6>
+        <p class="small mb-0">All camps in {{ district }} are verified.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- PENDING CAMP HEAD APPROVALS -->
+  {% if pending_camp_heads %}
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 pt-4 pb-2 px-4">
+      <h5 class="fw-semibold mb-0 text-danger">
+        <i class="fas fa-user-check me-2"></i>Pending Camp Coordinator Approvals
+      </h5>
+      <p class="text-muted small mb-0 mt-1">
+        Camp Coordinators approved by Field Officer, now awaiting your approval.
+      </p>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="px-4">Name</th>
+              <th>Camp</th>
+              <th>Employee ID</th>
+              <th>Field Officer</th>
+              <th class="px-4 text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ch in pending_camp_heads %}
+            <tr>
+              <td class="px-4 fw-semibold">{{ ch.contact_person|default:ch.username }}</td>
+              <td>{{ ch.camp.name|default:"—" }}</td>
+              <td><code>{{ ch.employee_id }}</code></td>
+              <td>
+                {% if ch.approved_by_field_officer %}
+                  <span class="badge bg-success"><i class="fas fa-check me-1"></i>Approved</span>
+                {% else %}
+                  <span class="badge bg-secondary">Pending</span>
+                {% endif %}
+              </td>
+              <td class="px-4 text-end">
+                <form action="{% url 'approve_camp_head_panchayath' ch.id %}" method="post" class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-success me-1">
+                    <i class="fas fa-check me-1"></i>Approve
+                  </button>
+                </form>
+                <form action="{% url 'reject_camp_head_panchayath' ch.id %}" method="post" class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-danger"
+                          onclick="return confirm('Reject this Camp Coordinator?')">
+                    <i class="fas fa-times me-1"></i>Reject
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- VERIFIED / LIVE CAMPS -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 pt-4 pb-2 px-4">
+      <h5 class="fw-semibold mb-0 text-success">
+        <i class="fas fa-check-circle me-2"></i>Verified &amp; Live Camps
+      </h5>
+      <p class="text-muted small mb-0 mt-1">All active camps in {{ district }}.</p>
+    </div>
+    <div class="card-body p-0">
+      {% if verified_camps %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="px-4">Camp Name</th>
+              <th>Location</th>
+              <th>People</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for camp in verified_camps %}
+            <tr>
+              <td class="px-4 fw-semibold">
+                <a href="{% url 'camp_detail' camp.pk %}" class="text-decoration-none">{{ camp.name }}</a>
+              </td>
+              <td>{{ camp.location }}</td>
+              <td>{{ camp.people_count|default:"—" }}</td>
+              <td>
+                {% if camp.status == 'approved' %}
+                  <span class="badge bg-success"><i class="fas fa-check-double me-1"></i>Live</span>
+                {% else %}
+                  <span class="badge bg-info text-dark">Verified</span>
+                {% endif %}
+              </td>
+              <td class="small text-muted">{{ camp.created_at|date:"d M Y" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5 text-muted">
+        <i class="fas fa-campground fa-3x mb-3 d-block opacity-25"></i>
+        <h6>No verified camps yet</h6>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- APPROVED CAMP HEADS -->
+  {% if approved_camp_heads %}
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 pt-4 pb-2 px-4">
+      <h5 class="fw-semibold mb-0 text-success">
+        <i class="fas fa-users me-2"></i>Approved Camp Coordinators
+      </h5>
+      <p class="text-muted small mb-0 mt-1">Camp Coordinators you have approved in {{ district }}.</p>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="px-4">Name</th>
+              <th>Camp</th>
+              <th>Employee ID</th>
+              <th>Active</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ch in approved_camp_heads %}
+            <tr>
+              <td class="px-4 fw-semibold">{{ ch.contact_person|default:ch.username }}</td>
+              <td>{{ ch.camp.name|default:"—" }}</td>
+              <td><code>{{ ch.employee_id }}</code></td>
+              <td>
+                {% if ch.is_approved %}
+                  <span class="badge bg-success"><i class="fas fa-check me-1"></i>Active</span>
+                {% else %}
+                  <span class="badge bg-secondary">Pending Field Officer</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- VERIFIED NEEDS (read-only, for reference) -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 pt-4 pb-2 px-4">
+      <h5 class="fw-semibold mb-0">
+        <i class="fas fa-clipboard-list me-2 text-primary"></i>Verified Needs in {{ district }}
+      </h5>
+      <p class="text-muted small mb-0 mt-1">Needs verified by Field Officers — live and visible to donors.</p>
+    </div>
+    <div class="card-body p-0">
+      {% if verified_needs %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="px-4">Item</th>
+              <th>Camp</th>
+              <th>Qty Needed</th>
+              <th>Received</th>
+              <th>Priority</th>
+              <th>Fulfilled</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for need in verified_needs %}
+            <tr>
+              <td class="px-4 fw-semibold">{{ need.item }}</td>
+              <td>{{ need.camp.name }}</td>
+              <td>{{ need.quantity_needed }} {{ need.unit }}</td>
+              <td>{{ need.quantity_received }} {{ need.unit }}</td>
+              <td>
+                {% if need.priority == 'urgent' %}<span class="badge bg-danger">Urgent</span>
+                {% elif need.priority == 'normal' %}<span class="badge bg-warning text-dark">Normal</span>
+                {% else %}<span class="badge bg-secondary">Low</span>{% endif %}
+              </td>
+              <td>
+                {% if need.is_fulfilled %}
+                  <span class="badge bg-success"><i class="fas fa-check me-1"></i>Yes</span>
+                {% else %}
+                  <span class="badge bg-info text-dark">Active</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5 text-muted">
+        <i class="fas fa-clipboard-check fa-3x mb-3 d-block opacity-25"></i>
+        <h6>No verified needs in {{ district }} yet</h6>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

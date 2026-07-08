@@ -1,85 +1,84 @@
 {% extends 'base.html' %}
-{% block title %}Login{% endblock %}
+{% block title %}Login - Disaster Relief Kerala{% endblock %}
 {% block content %}
 
-<div style="background:linear-gradient(135deg,#e74c3c,#c0392b);padding:60px 0">
-  <div class="container text-center text-white">
-    <div style="background:rgba(255,255,255,0.2);width:80px;height:80px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
-      <i class="fas fa-sign-in-alt" style="font-size:2.5rem"></i>
+<!-- Hero Header Section -->
+<div style="background: linear-gradient(135deg, #1e3c72, #2a5298); padding: 60px 0; position: relative; overflow: hidden; border-bottom: 3px solid rgba(255,255,255,0.1);">
+  <div style="position: absolute; top: -50%; left: -20%; width: 60%; height: 200%; background: rgba(255,255,255,0.03); transform: rotate(30deg); pointer-events: none;"></div>
+  <div class="container text-center text-white position-relative">
+    <div style="background: rgba(255,255,255,0.1); width: 80px; height: 80px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(10px);">
+      <i class="fas fa-user-circle" style="font-size: 2.5rem; color: #fff;"></i>
     </div>
     <h1 class="fw-bold">Welcome Back</h1>
-    <p style="opacity:0.9">Login with your email or username</p>
+    <p style="opacity: 0.9; max-width: 500px; margin: 0 auto;" class="fs-5">Sign in to your account to continue supporting relief efforts across Kerala.</p>
   </div>
 </div>
 
 <div class="container mt-5 mb-5">
-  <div class="row justify-content-center">
-    <div class="col-md-5">
-      <div class="card p-5">
-        <form method="POST" autocomplete="off">
-          {% csrf_token %}
+  <div class="row g-4 justify-content-center">
 
-          <div class="mb-4">
-            <label class="form-label">
-              <i class="fas fa-user me-2 text-danger"></i>Email or Username
-            </label>
-            <input type="text" name="email" class="form-control form-control-lg"
-                   placeholder="your@email.com or username"
-                   autocomplete="off" required>
-            <div class="form-text">
-              Donors use email — Panchayath staff use username
+    <!-- Card 1: Donor Portal -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 border-0 shadow-sm portal-card" style="border-radius: 16px; transition: all 0.3s ease; border-top: 5px solid #e74c3c !important;">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center mb-3">
+            <div class="portal-icon-wrapper" style="background: #fff5f5; color: #e74c3c; width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-right: 15px;">
+              <i class="fas fa-hand-holding-heart"></i>
             </div>
+            <h4 class="card-title fw-bold mb-0 text-dark">Donor Portal</h4>
           </div>
-
-          <div class="mb-4">
-            <label class="form-label">
-              <i class="fas fa-lock me-2 text-danger"></i>Password
-            </label>
-            <input type="password" name="password" class="form-control form-control-lg"
-                   placeholder="Your password"
-                   autocomplete="new-password" required>
-          </div>
-
-          {% if messages %}
-          {% for message in messages %}
-          <div class="alert alert-danger mb-4">
-            <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
-          </div>
-          {% endfor %}
-          {% endif %}
-
-          <button type="submit" class="btn btn-donate w-100 btn-lg py-3">
-            <i class="fas fa-sign-in-alt me-2"></i>Login
-          </button>
-        </form>
-
-        <hr class="my-4">
-
-        <div class="text-center">
-          <p class="text-muted mb-2 small fw-semibold">Don't have an account?</p>
-          <a href="{% url 'register' %}" class="btn btn-outline-danger w-100 mb-2"
-             style="border-radius:10px">
-            <i class="fas fa-user-plus me-2"></i>Register as Donor / Volunteer
-          </a>
-          <a href="{% url 'panchayath_register' %}" class="btn btn-outline-secondary w-100"
-             style="border-radius:10px">
-            <i class="fas fa-building me-2"></i>Register as Panchayath
+          <p class="card-text text-muted flex-grow-1">Access your donor workspace to donate money or items, manage your receipts, and track your relief contributions.</p>
+          <a href="{% url 'donor_login' %}" class="btn w-100 fw-bold py-2 mt-3" style="background: #e74c3c; color: white; border-radius: 10px; border: none; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.2);">
+            <i class="fas fa-sign-in-alt me-2"></i>Donor Login
           </a>
         </div>
       </div>
-
-      <!-- Info card -->
-      <div class="card p-4 mt-3" style="background:#fff8e1;border:1px solid #fde68a !important">
-        <p class="fw-bold mb-2 small" style="color:#92400e">
-          <i class="fas fa-info-circle me-2"></i>Panchayath Staff?
-        </p>
-        <p class="text-muted small mb-0">
-          Use your <strong>username</strong> and password to login.
-          Your email is not required.
-        </p>
-      </div>
-
     </div>
+
+    <!-- Card 2: Volunteer Portal -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 border-0 shadow-sm portal-card" style="border-radius: 16px; transition: all 0.3s ease; border-top: 5px solid #27ae60 !important;">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center mb-3">
+            <div class="portal-icon-wrapper" style="background: #e8f8f5; color: #27ae60; width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-right: 15px;">
+              <i class="fas fa-hands-helping"></i>
+            </div>
+            <h4 class="card-title fw-bold mb-0 text-dark">Volunteer Portal</h4>
+          </div>
+          <p class="card-text text-muted flex-grow-1">Log in to view assigned camps, access your volunteer schedule, and coordinate on-ground relief distribution.</p>
+          <a href="{% url 'volunteer_login' %}" class="btn w-100 fw-bold py-2 mt-3" style="background: #27ae60; color: white; border-radius: 10px; border: none; box-shadow: 0 4px 10px rgba(39, 174, 96, 0.2);">
+            <i class="fas fa-sign-in-alt me-2"></i>Volunteer Login
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Register CTA -->
+  <div class="text-center mt-5">
+    <p class="text-muted">New to Relief Kerala?</p>
+    <a href="{% url 'register' %}" class="btn btn-outline-danger px-5 fw-bold" style="border-radius: 50px;">
+      <i class="fas fa-user-plus me-2"></i>Create an Account
+    </a>
   </div>
 </div>
+
+<style>
+  .portal-card {
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+  .portal-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important;
+  }
+  .portal-card .btn {
+    transition: all 0.2s ease;
+  }
+  .portal-card:hover .btn {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15) !important;
+  }
+</style>
+
 {% endblock %}

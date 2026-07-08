@@ -4,18 +4,7 @@
 {% block content %}
 <div class="container-fluid py-4">
 
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h2 class="fw-bold text-danger mb-0">
-        <i class="fas fa-building me-2"></i>{{ panchayath_name }}
-      </h2>
-      <p class="text-muted mb-0">
-        <i class="fas fa-map-marker-alt me-1"></i>{{ district }} — Item Donation Dashboard
-      </p>
-    </div>
-  </div>
-
-  <!-- Summary cards -->
+  <!-- Summary Cards -->
   <div class="row g-3 mb-4">
     <div class="col-md-4">
       <div class="card border-0 shadow-sm h-100">
@@ -120,7 +109,7 @@
                 {% else %}
                   <a href="{% url 'panchayath_dispatch' item.id %}"
                      class="btn btn-sm btn-danger">
-                    <i class="fas fa-truck me-1"></i>Dispatch
+                    <i class="fas fa-truck me-1"></i>Dispatch to Camp
                   </a>
                 {% endif %}
               </td>
@@ -138,16 +127,16 @@
     </div>
   </div>
 
-  <!-- STAGE 2: In Transit — needs delivery confirmation -->
+  <!-- STAGE 2: In Transit -->
   <div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-white border-0 pt-3 pb-2">
       <h5 class="fw-semibold mb-0">
         <span class="badge bg-primary me-2">Stage 2</span>
-        In Transit — Confirm Delivery
+        In Transit
         <span class="badge bg-secondary ms-2">{{ transit_items|length }}</span>
       </h5>
       <p class="text-muted small mb-0 mt-1">
-        These items are on the way — confirm once delivered to the camp
+        These items are on the way — Camp Head will confirm receipt at the camp
       </p>
     </div>
     <div class="card-body p-0">
@@ -162,7 +151,7 @@
               <th>Camp</th>
               <th>Dispatched By</th>
               <th>Dispatched At</th>
-              <th>Action</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
@@ -188,10 +177,9 @@
                 {{ item.dispatched_at|date:"d M Y, H:i"|default:"—" }}
               </td>
               <td>
-                <a href="{% url 'panchayath_deliver' item.id %}"
-                   class="btn btn-sm btn-success">
-                  <i class="fas fa-check-circle me-1"></i>Mark Delivered
-                </a>
+                <span class="badge bg-info text-dark p-2">
+                  <i class="fas fa-clock me-1"></i>Waiting for Camp Head
+                </span>
               </td>
             </tr>
             {% endfor %}
@@ -208,7 +196,7 @@
   </div>
 
   <!-- STAGE 3: Recently Delivered -->
-  <div class="card border-0 shadow-sm">
+  <div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-white border-0 pt-3 pb-2">
       <h5 class="fw-semibold mb-0">
         <span class="badge bg-success me-2">Stage 3</span>

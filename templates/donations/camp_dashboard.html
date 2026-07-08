@@ -1,18 +1,201 @@
 {% extends 'base.html' %}
-{% block title %}Camp Incoming Items{% endblock %}
+{% block title %}Camp Dashboard{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
+
   <div class="mb-4">
     <h2 class="fw-bold text-danger mb-0">
-      <i class="fas fa-campground me-2"></i>Camp Incoming Items
+      <i class="fas fa-campground me-2"></i>
+      {% if camp %}{{ camp.name }}{% else %}All Camps{% endif %} — Delivery Dashboard
     </h2>
-    <p class="text-muted mb-0">Track and confirm item donations arriving at your camp</p>
+    <p class="text-muted mb-0">Confirm item donations received at your camp</p>
   </div>
 
-  <div class="card border-0 shadow-sm">
+  <!-- Camp Head Account Status -->
+  {% if request.user.role == 'camp_head' %}
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 pt-3 pb-2">
+      <h5 class="fw-semibold mb-0"><i class="fas fa-id-badge me-2 text-danger"></i>Account Approval Status</h5>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-sm-6 col-md-3">
+          <div class="p-3 rounded bg-light text-center">
+            <div class="text-muted small mb-1">Field Officer</div>
+            {% if request.user.approved_by_field_officer %}
+              <span class="badge bg-success fs-6"><i class="fas fa-check-circle me-1"></i>Approved</span>
+            {% else %}
+              <span class="badge bg-warning text-dark fs-6"><i class="fas fa-clock me-1"></i>Pending</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+          <div class="p-3 rounded bg-light text-center">
+            <div class="text-muted small mb-1">District Officer</div>
+            {% if request.user.approved_by_panchayath %}
+              <span class="badge bg-success fs-6"><i class="fas fa-check-circle me-1"></i>Approved</span>
+            {% else %}
+              <span class="badge bg-warning text-dark fs-6"><i class="fas fa-clock me-1"></i>Pending</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+          <div class="p-3 rounded bg-light text-center">
+            <div class="text-muted small mb-1">Admin</div>
+            {% if request.user.is_approved %}
+              <span class="badge bg-success fs-6"><i class="fas fa-check-circle me-1"></i>Approved</span>
+            {% else %}
+              <span class="badge bg-danger fs-6"><i class="fas fa-times-circle me-1"></i>Not Approved</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+          <div class="p-3 rounded bg-light text-center">
+            <div class="text-muted small mb-1">Assigned Camp</div>
+            {% if camp %}
+              <span class="fw-semibold text-danger">{{ camp.name }}</span>
+              <div class="text-muted small">{{ camp.district }}</div>
+            {% else %}
+              <span class="text-muted">Not assigned</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% if not request.user.approved_by_field_officer or not request.user.approved_by_panchayath or not request.user.is_approved %}
+      <div class="alert alert-warning border-0 mt-3 mb-0 py-2">
+        <i class="fas fa-info-circle me-1"></i>
+        Your account is pending approval from one or more officers. Some features may be restricted until fully approved.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Camp Needs -->
+  {% if camp %}
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 pt-3 pb-2 d-flex justify-content-between align-items-center">
+      <div>
+        <h5 class="fw-semibold mb-0">
+          <span class="badge bg-danger me-2">Camp Needs</span>
+          Requested Items
+          <span class="badge bg-secondary ms-2">{{ needs|length }}</span>
+        </h5>
+        <p class="text-muted small mb-0 mt-1">
+          Manage items required by the residents of this camp
+        </p>
+      </div>
+      <a href="{% url 'add_need' %}" class="btn btn-sm btn-danger fw-semibold">
+        <i class="fas fa-plus me-1"></i>Add Need
+      </a>
+    </div>
     <div class="card-body p-0">
-      {% if items %}
+      {% if needs %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Item</th>
+              <th>Priority</th>
+              <th>Quantity Needed</th>
+              <th>Received</th>
+              <th>Progress</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for need in needs %}
+            <tr {% if need.is_fulfilled %}class="table-light opacity-75"{% endif %}>
+              <td class="fw-semibold">
+                {{ need.item }}
+              </td>
+              <td>
+                {% if need.priority == 'urgent' %}
+                  <span class="badge bg-danger">Urgent</span>
+                {% elif need.priority == 'normal' %}
+                  <span class="badge bg-warning text-dark">Normal</span>
+                {% else %}
+                  <span class="badge bg-secondary">Low</span>
+                {% endif %}
+              </td>
+              <td>{{ need.quantity_needed }} {{ need.unit }}</td>
+              <td>{{ need.quantity_received }} {{ need.unit }}</td>
+              <td style="width: 15%;">
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar {% if need.priority == 'urgent' %}bg-danger{% else %}bg-success{% endif %}" 
+                       role="progressbar" 
+                       style="width: {{ need.percent_fulfilled }}%;" 
+                       aria-valuenow="{{ need.percent_fulfilled }}" 
+                       aria-valuemin="0" 
+                       aria-valuemax="100"></div>
+                </div>
+                <small class="text-muted">{{ need.percent_fulfilled }}%</small>
+              </td>
+              <td>
+                {% if need.is_fulfilled %}
+                  <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Fulfilled</span>
+                {% elif need.status == 'pending' %}
+                  <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>Pending Verification</span>
+                  <div class="mt-1 small text-muted">
+                    Field Officer: {% if need.verified_by_field_officer %}<span class="text-success">✓</span>{% else %}<span class="text-danger">✗</span>{% endif %}
+                  </div>
+                {% elif need.status == 'rejected' %}
+                  <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Rejected</span>
+                {% else %}
+                  <span class="badge bg-success"><i class="fas fa-check me-1"></i>Verified</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="d-flex gap-1">
+                  <a href="{% url 'toggle_need_fulfillment' need.id %}" 
+                     class="btn btn-sm {% if need.is_fulfilled %}btn-outline-warning{% else %}btn-outline-success{% endif %}"
+                     title="{% if need.is_fulfilled %}Mark Active{% else %}Mark Fulfilled{% endif %}">
+                    <i class="fas {% if need.is_fulfilled %}fa-undo{% else %}fa-check{% endif %}"></i>
+                  </a>
+                  <a href="{% url 'edit_need' need.id %}" 
+                     class="btn btn-sm btn-outline-secondary"
+                     title="Edit Need">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <form action="{% url 'delete_need' need.id %}" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this need?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Need">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-4 text-muted">
+        <i class="fas fa-hand-holding-heart fa-2x mb-2 d-block opacity-25"></i>
+        No needs added yet. Click "Add Need" to list required items.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- In Transit -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 pt-3 pb-2">
+      <h5 class="fw-semibold mb-0">
+        <span class="badge bg-warning text-dark me-2">Awaiting Confirmation</span>
+        Items In Transit
+        <span class="badge bg-secondary ms-2">{{ transit_items|length }}</span>
+      </h5>
+      <p class="text-muted small mb-0 mt-1">
+        These items have been dispatched by panchayath — confirm when received
+      </p>
+    </div>
+    <div class="card-body p-0">
+      {% if transit_items %}
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
@@ -22,48 +205,41 @@
               <th>Items</th>
               <th>From Panchayath</th>
               <th>Dispatched By</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>Dispatched At</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {% for item in items %}
+            {% for item in transit_items %}
             <tr>
-              <td><span class="badge bg-secondary font-monospace">{{ item.tracking_id }}</span></td>
+              <td>
+                <span class="badge bg-dark font-monospace">{{ item.tracking_id }}</span>
+              </td>
               <td>
                 <div class="fw-semibold">{{ item.donor_name }}</div>
                 <div class="text-muted small">{{ item.donor_phone }}</div>
               </td>
               <td>
-                <div>{{ item.item_name|truncatechars:40 }}</div>
-                <div class="badge bg-light text-dark border">Qty: {{ item.quantity }} {{ item.unit }}</div>
-              </td>
-              <td>{{ item.panchayath_name|default:"—" }}</td>
-              <td>
-                {{ item.dispatched_by|default:"—" }}
-                {% if item.dispatched_at %}
-                <div class="text-muted small">{{ item.dispatched_at|date:"d M, H:i" }}</div>
-                {% endif %}
+                <div>{{ item.item_name|truncatechars:35 }}</div>
+                <div class="text-muted small">Qty: {{ item.quantity }} {{ item.unit }}</div>
               </td>
               <td>
-                {% if item.delivery_status == 'in_transit' %}
-                  <span class="badge bg-warning text-dark">In Transit</span>
-                {% elif item.delivery_status == 'at_camp' %}
-                  <span class="badge bg-info">At Camp</span>
-                {% elif item.delivery_status == 'delivered' %}
-                  <span class="badge bg-success">Delivered</span>
-                {% endif %}
-              </td>
-              <td>
-                {% if item.delivery_status == 'in_transit' or item.delivery_status == 'at_camp' %}
-                  <a href="{% url 'camp_receive' item.id %}" class="btn btn-sm btn-success">
-                    <i class="fas fa-check me-1"></i>Update
-                  </a>
+                {% if item.panchayath %}
+                  <div class="fw-semibold">{{ item.panchayath.panchayath_name }}</div>
+                  <div class="text-muted small">{{ item.panchayath.district }}</div>
                 {% else %}
-                  <span class="text-muted small">
-                    <i class="fas fa-check-circle text-success me-1"></i>Done
-                  </span>
+                  <span class="text-muted">—</span>
                 {% endif %}
+              </td>
+              <td>{{ item.dispatched_by|default:"—" }}</td>
+              <td class="text-muted small">
+                {{ item.dispatched_at|date:"d M, H:i"|default:"—" }}
+              </td>
+              <td>
+                <a href="{% url 'camp_confirm_delivery' item.id %}"
+                   class="btn btn-sm btn-success fw-semibold">
+                  <i class="fas fa-check-circle me-1"></i>Confirm Delivery
+                </a>
               </td>
             </tr>
             {% endfor %}
@@ -71,12 +247,73 @@
         </table>
       </div>
       {% else %}
-      <div class="text-center py-5 text-muted">
-        <i class="fas fa-truck fa-3x mb-3 d-block opacity-25"></i>
-        No incoming items yet.
+      <div class="text-center py-4 text-muted">
+        <i class="fas fa-truck fa-2x mb-2 d-block opacity-25"></i>
+        No items in transit right now.
       </div>
       {% endif %}
     </div>
   </div>
+
+  <!-- Delivered -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 pt-3 pb-2">
+      <h5 class="fw-semibold mb-0">
+        <span class="badge bg-success me-2">Delivered</span>
+        Recently Confirmed
+        <span class="badge bg-secondary ms-2">{{ delivered_items|length }}</span>
+      </h5>
+    </div>
+    <div class="card-body p-0">
+      {% if delivered_items %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Tracking ID</th>
+              <th>Donor</th>
+              <th>Items</th>
+              <th>Panchayath</th>
+              <th>Received By</th>
+              <th>Delivered At</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in delivered_items %}
+            <tr>
+              <td>
+                <span class="badge bg-dark font-monospace">{{ item.tracking_id }}</span>
+              </td>
+              <td>{{ item.donor_name }}</td>
+              <td>
+                {{ item.item_name|truncatechars:35 }}
+                <div class="text-muted small">Qty: {{ item.quantity }} {{ item.unit }}</div>
+              </td>
+              <td>
+                {% if item.panchayath %}
+                  {{ item.panchayath.panchayath_name }}
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+              <td>{{ item.received_by|default:"—" }}</td>
+              <td class="text-muted small">
+                <i class="fas fa-check-circle text-success me-1"></i>
+                {{ item.received_at|date:"d M Y, H:i"|default:"—" }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-4 text-muted">
+        <i class="fas fa-check-circle fa-2x mb-2 d-block opacity-25"></i>
+        No deliveries confirmed yet.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
 </div>
 {% endblock %}

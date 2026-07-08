@@ -66,6 +66,22 @@
   </div>
 </div>
 
+<!-- Row 2b: Field & District Officers -->
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card p-3 text-center border-0 shadow-sm" style="background:#fff9e6">
+      <h3 class="fw-bold text-warning">{{ total_field_officers }}</h3>
+      <p class="mb-0 text-muted small">Registered Field Officers</p>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card p-3 text-center border-0 shadow-sm" style="background:#e0f7fa">
+      <h3 class="fw-bold text-info">{{ total_district_officers }}</h3>
+      <p class="mb-0 text-muted small">Registered District Officers</p>
+    </div>
+  </div>
+</div>
+
 <!-- Row 3: Item donation stats -->
 <div class="row g-3 mb-4">
   <div class="col-md-4">
@@ -135,26 +151,43 @@
         <h5 class="fw-bold mb-0">
           <i class="fas fa-user-clock me-2 text-warning"></i>Pending Volunteers
         </h5>
-        <a href="/admin/volunteers/volunteerprofile/" class="btn btn-sm btn-donate">Manage</a>
+        <span class="badge bg-warning text-dark">{{ pending_volunteers_list|length }} pending</span>
       </div>
-      <table class="table table-sm">
-        <thead class="table-light">
-          <tr><th>Name</th><th>Location</th><th>Skills</th></tr>
-        </thead>
-        <tbody>
-          {% for v in recent_volunteers %}
-          {% if not v.is_approved %}
-          <tr>
-            <td>{{ v.user.get_full_name }}</td>
-            <td>{{ v.location }}</td>
-            <td class="text-muted small">{{ v.skills|truncatechars:20 }}</td>
-          </tr>
-          {% endif %}
-          {% empty %}
-          <tr><td colspan="3" class="text-center text-muted">No pending volunteers</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+      <div class="table-responsive" style="max-height:320px;overflow-y:auto;">
+        <table class="table table-sm align-middle">
+          <thead class="table-light">
+            <tr><th>Name</th><th>Location</th><th>Skills</th><th class="text-end">Action</th></tr>
+          </thead>
+          <tbody>
+            {% for v in pending_volunteers_list %}
+            <tr>
+              <td>{{ v.full_name|default:v.user.get_full_name }}</td>
+              <td>{{ v.location }}</td>
+              <td class="text-muted small">{{ v.skills|truncatechars:20 }}</td>
+              <td class="text-end">
+                <div class="d-flex gap-1 justify-content-end">
+                  <form action="{% url 'approve_volunteer' v.id %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-success" title="Approve">
+                      <i class="fas fa-check"></i>
+                    </button>
+                  </form>
+                  <form action="{% url 'reject_volunteer' v.id %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Reject"
+                            onclick="return confirm('Reject and delete this volunteer registration?');">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center text-muted">No pending volunteers</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
@@ -165,19 +198,13 @@
     <h5 class="fw-bold mb-0">
       <i class="fas fa-box me-2 text-danger"></i>Recent Item Donations
     </h5>
-    <a href="{% url 'item_transparency' %}" class="btn btn-sm btn-outline-danger">
-      View All
-    </a>
+    <a href="{% url 'item_transparency' %}" class="btn btn-sm btn-outline-danger">View All</a>
   </div>
   <table class="table table-sm">
     <thead class="table-light">
       <tr>
-        <th>Tracking ID</th>
-        <th>Donor</th>
-        <th>Item</th>
-        <th>Panchayath</th>
-        <th>Camp</th>
-        <th>Status</th>
+        <th>Tracking ID</th><th>Donor</th><th>Item</th>
+        <th>Panchayath</th><th>Camp</th><th>Status</th>
       </tr>
     </thead>
     <tbody>
@@ -192,11 +219,8 @@
         <td>{{ d.donor_name }}</td>
         <td>{{ d.item_name }} ({{ d.quantity }} {{ d.unit }})</td>
         <td>
-          {% if d.panchayath %}
-            {{ d.panchayath.panchayath_name }}
-          {% else %}
-            <span class="text-muted">—</span>
-          {% endif %}
+          {% if d.panchayath %}{{ d.panchayath.panchayath_name }}
+          {% else %}<span class="text-muted">—</span>{% endif %}
         </td>
         <td>{{ d.camp.name|default:"—" }}</td>
         <td>
@@ -220,6 +244,209 @@
   </table>
 </div>
 
+<!-- Pending Camp Approvals -->
+<div class="card p-4 border-0 shadow-sm mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="fw-bold mb-0">
+      <i class="fas fa-campground me-2 text-success"></i>Pending Camp Approvals
+      <span class="text-muted small fw-normal ms-2">Verified by District Officer — awaiting your approval</span>
+    </h5>
+    <span class="badge bg-success">{{ verified_camps|length }} pending</span>
+  </div>
+  {% if verified_camps %}
+  <div class="table-responsive">
+    <table class="table table-sm table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>#</th><th>Camp Name</th><th>District</th><th>Location</th>
+          <th>People Count</th><th>Contact</th><th>Created By</th>
+          <th class="text-end">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for camp in verified_camps %}
+        <tr>
+          <td class="text-muted">{{ forloop.counter }}</td>
+          <td class="fw-semibold">{{ camp.name }}</td>
+          <td><span class="badge bg-light text-dark border">{{ camp.district }}</span></td>
+          <td class="text-muted small">{{ camp.location }}</td>
+          <td><span class="badge bg-info text-dark">{{ camp.people_count }} people</span></td>
+          <td class="small">
+            {{ camp.contact_person }}<br>
+            <span class="text-muted">{{ camp.contact_phone }}</span>
+          </td>
+          <td class="text-muted small">{{ camp.created_by.username|default:"—" }}</td>
+          <td class="text-end">
+            <form action="{% url 'approve_camp' camp.pk %}" method="post" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-success">
+                <i class="fas fa-check me-1"></i>Approve
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-4 text-muted">
+    <i class="fas fa-campground fa-2x mb-2 d-block opacity-25"></i>
+    No camps waiting for approval right now.
+  </div>
+  {% endif %}
+</div>
+
+<!-- All Camp Details -->
+<div class="card p-4 border-0 shadow-sm mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="fw-bold mb-0">
+      <i class="fas fa-campground me-2 text-danger"></i>Camp Details
+      <span class="text-muted small fw-normal ms-2">All active relief camps across Kerala</span>
+    </h5>
+    <span class="badge bg-secondary">{{ camps|length }} camps</span>
+  </div>
+  {% if camps %}
+  <div class="table-responsive">
+    <table class="table table-sm table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>#</th><th>Camp Name</th><th>District</th><th>Location</th>
+          <th>Status</th><th>People</th><th>Camp Head</th><th>Panchayath Officer</th>
+          <th>Needs</th><th>Created</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for camp in camps %}
+        <tr>
+          <td class="text-muted">{{ forloop.counter }}</td>
+          <td class="fw-semibold">{{ camp.name }}</td>
+          <td><span class="badge bg-light text-dark border">{{ camp.district }}</span></td>
+          <td class="text-muted small">{{ camp.location }}</td>
+          <td>
+            {% if camp.status == 'approved' %}
+              <span class="badge bg-success">Approved (Live)</span>
+            {% elif camp.status == 'verified' %}
+              <span class="badge bg-info text-dark">Verified — Awaiting Approval</span>
+            {% else %}
+              <span class="badge bg-secondary">Pending Verification</span>
+            {% endif %}
+          </td>
+          <td><span class="badge bg-light text-dark border">{{ camp.people_count }}</span></td>
+          <td class="text-muted small">
+            {% with head=camp.camp_heads.all|first %}
+              {% if head %}{{ head.contact_person|default:head.username }}
+              {% else %}<span class="text-muted">Unassigned</span>{% endif %}
+            {% endwith %}
+          </td>
+          <td class="text-muted small">
+            {% if camp.panchayath %}{{ camp.panchayath.panchayath_name|default:camp.panchayath.username }}
+            {% else %}<span class="text-muted">—</span>{% endif %}
+          </td>
+          <td class="small">
+            <span class="badge bg-light text-dark border">{{ camp.needs_count }} total</span>
+            {% if camp.urgent_needs_count %}
+              <span class="badge bg-danger">{{ camp.urgent_needs_count }} urgent</span>
+            {% elif camp.unfulfilled_needs_count %}
+              <span class="badge bg-warning text-dark">{{ camp.unfulfilled_needs_count }} open</span>
+            {% endif %}
+          </td>
+          <td class="text-muted small">{{ camp.created_at|date:"d M Y" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-4 text-muted">
+    <i class="fas fa-campground fa-2x mb-2 d-block opacity-25"></i>
+    No active camps yet.
+  </div>
+  {% endif %}
+</div>
+
+<!-- Pending Staff Approvals -->
+<div class="card p-4 border-0 shadow-sm mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="fw-bold mb-0">
+      <i class="fas fa-id-badge me-2 text-warning"></i>Pending Staff Approvals
+    </h5>
+    <span class="badge bg-warning text-dark">{{ pending_staff|length }} pending</span>
+  </div>
+  {% if pending_staff %}
+  <div class="table-responsive">
+    <table class="table table-sm table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Role</th><th>Name</th><th>District</th>
+          <th>Employee ID</th><th>Username</th><th>ID Proof</th>
+          <th class="text-end">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in pending_staff %}
+        <tr>
+          <td>
+            {% if s.role == 'panchayath_staff' %}
+              <span class="badge bg-info text-dark">Panchayath Officer</span>
+            {% elif s.role == 'field_officer' %}
+              <span class="badge bg-primary">Field Officer</span>
+            {% elif s.role == 'district_officer' %}
+              <span class="badge bg-danger">District Officer</span>
+            {% elif s.role == 'camp_head' %}
+              <span class="badge bg-secondary">Camp Head</span>
+            {% else %}
+              <span class="badge bg-light text-dark border">{{ s.get_role_display }}</span>
+            {% endif %}
+          </td>
+          <td class="fw-semibold">
+            {{ s.contact_person|default:s.panchayath_name|default:s.username }}
+          </td>
+          <td>
+            <span class="badge bg-light text-dark border">{{ s.district|default:"—" }}</span>
+          </td>
+          <td class="text-muted small font-monospace">{{ s.employee_id|default:"—" }}</td>
+          <td class="text-muted small font-monospace">{{ s.username }}</td>
+          <td>
+            {% if s.id_proof %}
+              <button class="btn btn-sm btn-outline-secondary"
+                      onclick="showProof('{{ s.id_proof.url }}', '{{ s.contact_person|default:s.panchayath_name|default:s.username }}')">
+                <i class="fas fa-file-image me-1"></i>View
+              </button>
+            {% else %}
+              <span class="text-muted small">—</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            <div class="d-flex gap-1 justify-content-end">
+              <form action="{% url 'approve_staff' s.id %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-success" title="Approve">
+                  <i class="fas fa-check me-1"></i>Approve
+                </button>
+              </form>
+              <form action="{% url 'reject_staff' s.id %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger" title="Reject"
+                        onclick="return confirm('Reject and delete this staff registration?');">
+                  <i class="fas fa-times me-1"></i>Reject
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-4 text-muted">
+    <i class="fas fa-id-badge fa-2x mb-2 d-block opacity-25"></i>
+    No staff registrations awaiting approval.
+  </div>
+  {% endif %}
+</div>
+
 <!-- Panchayath Management -->
 <div class="card p-4 border-0 shadow-sm mb-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
@@ -233,29 +460,20 @@
     <table class="table table-sm table-hover">
       <thead class="table-light">
         <tr>
-          <th>Panchayath Name</th>
-          <th>District</th>
-          <th>Contact Person</th>
-          <th>Phone</th>
-          <th>Username</th>
-          <th>Donations Handled</th>
-          <th>Actions</th>
+          <th>Panchayath Name</th><th>District</th><th>Contact Person</th>
+          <th>Phone</th><th>Username</th><th>Donations Handled</th><th>Actions</th>
         </tr>
       </thead>
       <tbody>
         {% for p in panchayaths %}
         <tr>
           <td class="fw-semibold">{{ p.panchayath_name }}</td>
-          <td>
-            <span class="badge bg-light text-dark border">{{ p.district }}</span>
-          </td>
+          <td><span class="badge bg-light text-dark border">{{ p.district }}</span></td>
           <td>{{ p.contact_person }}</td>
           <td>{{ p.phone }}</td>
           <td class="text-muted small font-monospace">{{ p.username }}</td>
           <td>
-            <span class="badge bg-primary">
-              {{ p.assigned_donations.count }} donations
-            </span>
+            <span class="badge bg-primary">{{ p.assigned_donations.count }} donations</span>
           </td>
           <td>
             <a href="/admin/accounts/customuser/{{ p.id }}/change/"
@@ -276,22 +494,324 @@
   {% endif %}
 </div>
 
+<!-- Camp Head Management -->
+<div class="card p-4 border-0 shadow-sm mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="fw-bold mb-0">
+      <i class="fas fa-user-shield me-2 text-danger"></i>Registered Camp Heads
+    </h5>
+    <div>
+      <a href="{% url 'camp_head_register' %}" class="btn btn-sm btn-danger me-2">
+        <i class="fas fa-plus me-1"></i>Add Camp Head
+      </a>
+      <span class="badge bg-danger">{{ camp_heads.count }} registered</span>
+    </div>
+  </div>
+  {% if camp_heads %}
+  <div class="table-responsive">
+    <table class="table table-sm table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>Camp Head Name</th><th>Camp Assigned</th><th>District</th>
+          <th>Phone</th><th>Username</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in camp_heads %}
+        <tr>
+          <td class="fw-semibold">{{ c.contact_person }}</td>
+          <td>
+            {% if c.camp %}
+              <span class="fw-semibold text-danger">{{ c.camp.name }}</span>
+            {% else %}
+              <span class="text-muted small">No camp assigned</span>
+            {% endif %}
+          </td>
+          <td><span class="badge bg-light text-dark border">{{ c.camp.district|default:"—" }}</span></td>
+          <td>{{ c.phone }}</td>
+          <td class="text-muted small font-monospace">{{ c.username }}</td>
+          <td>
+            <div class="d-flex gap-1">
+              <a href="/admin/accounts/customuser/{{ c.id }}/change/"
+                 class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-edit me-1"></i>Edit
+              </a>
+              <a href="/admin/accounts/customuser/{{ c.id }}/delete/"
+                 class="btn btn-sm btn-outline-danger">
+                <i class="fas fa-trash-alt me-1"></i>Delete
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-4 text-muted">
+    <i class="fas fa-user-shield fa-2x mb-2 d-block opacity-25"></i>
+    No camp heads registered yet.
+  </div>
+  {% endif %}
+</div>
+
+<!-- Registered Field Officers -->
+<div class="card p-4 border-0 shadow-sm mb-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h5 class="fw-bold mb-0">
+      <i class="fas fa-hard-hat me-2 text-warning"></i>Registered Field Officers
+    </h5>
+    <div>
+      <a href="{% url 'field_officer_register' %}" class="btn btn-sm btn-warning me-2">
+        <i class="fas fa-plus me-1"></i>Add Field Officer
+      </a>
+      <span class="badge bg-warning text-dark">{{ total_field_officers }} registered</span>
+    </div>
+  </div>
+  {% if field_officers %}
+  <div class="table-responsive">
+    <table class="table table-sm table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>#</th><th>Username</th><th>Employee ID</th>
+          <th>District</th><th>Phone</th><th>Email</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in field_officers %}
+        <tr>
+          <td class="text-muted">{{ forloop.counter }}</td>
+          <td class="fw-semibold">{{ f.username }}</td>
+          <td><code>{{ f.employee_id|default:"—" }}</code></td>
+          <td><span class="badge bg-light text-dark border">{{ f.district|default:"—" }}</span></td>
+          <td>{{ f.phone|default:"—" }}</td>
+          <td>{{ f.email|default:"—" }}</td>
+          <td>
+            {% if f.is_approved %}
+              <span class="badge bg-success">Approved</span>
+            {% else %}
+              <span class="badge bg-danger">Pending</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-4 text-muted">
+    <i class="fas fa-hard-hat fa-2x mb-2 d-block opacity-25"></i>
+    No field officers registered yet.
+  </div>
+  {% endif %}
+</div>
+
+<!-- Registered District Officers -->
+<div class="card p-4 border-0 shadow-sm mb-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h5 class="fw-bold mb-0">
+      <i class="fas fa-landmark me-2 text-info"></i>Registered District Officers
+    </h5>
+    <div>
+      <a href="{% url 'district_officer_register' %}" class="btn btn-sm btn-info text-white me-2">
+        <i class="fas fa-plus me-1"></i>Add District Officer
+      </a>
+      <span class="badge bg-info text-dark">{{ total_district_officers }} registered</span>
+    </div>
+  </div>
+  {% if district_officers %}
+  <div class="table-responsive">
+    <table class="table table-sm table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>#</th><th>Username</th><th>Employee ID</th>
+          <th>District</th><th>Phone</th><th>Email</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for do in district_officers %}
+        <tr>
+          <td class="text-muted">{{ forloop.counter }}</td>
+          <td class="fw-semibold">{{ do.username }}</td>
+          <td><code>{{ do.employee_id|default:"—" }}</code></td>
+          <td><span class="badge bg-light text-dark border">{{ do.district|default:"—" }}</span></td>
+          <td>{{ do.phone|default:"—" }}</td>
+          <td>{{ do.email|default:"—" }}</td>
+          <td>
+            {% if do.is_approved %}
+              <span class="badge bg-success">Approved</span>
+            {% else %}
+              <span class="badge bg-danger">Pending</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-4 text-muted">
+    <i class="fas fa-landmark fa-2x mb-2 d-block opacity-25"></i>
+    No district officers registered yet.
+  </div>
+  {% endif %}
+</div>
+
+<!-- Volunteer Management -->
+<div class="card p-4 border-0 shadow-sm mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="fw-bold mb-0">
+      <i class="fas fa-hands-helping me-2 text-primary"></i>Volunteer Management
+    </h5>
+    <span class="badge bg-primary">{{ approved_volunteers_list|length }} approved</span>
+  </div>
+
+  <!-- Pending volunteers sub-section -->
+  {% if pending_volunteers_list %}
+  <h6 class="fw-semibold text-warning mb-2"><i class="fas fa-clock me-1"></i>Pending Approval ({{ pending_volunteers_list|length }})</h6>
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-hover align-middle">
+      <thead class="table-light">
+        <tr><th>Name</th><th>Phone</th><th>Location</th><th>Profession</th><th>Skills</th><th class="text-end">Action</th></tr>
+      </thead>
+      <tbody>
+        {% for v in pending_volunteers_list %}
+        <tr>
+          <td class="fw-semibold">{{ v.full_name }}</td>
+          <td>{{ v.phone }}</td>
+          <td>{{ v.location }}</td>
+          <td>{{ v.get_profession_display }}</td>
+          <td class="text-muted small">{{ v.skills|truncatechars:30 }}</td>
+          <td class="text-end">
+            <div class="d-flex gap-1 justify-content-end">
+              <form action="{% url 'approve_volunteer' v.id %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-success" title="Approve"><i class="fas fa-check"></i></button>
+              </form>
+              <form action="{% url 'reject_volunteer' v.id %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger" title="Reject"
+                        onclick="return confirm('Reject and delete this volunteer?')"><i class="fas fa-times"></i></button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  <!-- Approved volunteers sub-section -->
+  <h6 class="fw-semibold text-success mb-2"><i class="fas fa-check-circle me-1"></i>Approved Volunteers</h6>
+  {% if approved_volunteers_list %}
+  <div class="table-responsive" style="max-height:350px;overflow-y:auto;">
+    <table class="table table-sm table-hover align-middle">
+      <thead class="table-light sticky-top">
+        <tr><th>#</th><th>Name</th><th>Phone</th><th>Location</th><th>Profession</th><th>Skills</th><th>Assigned Camp</th><th>Available</th></tr>
+      </thead>
+      <tbody>
+        {% for v in approved_volunteers_list %}
+        <tr>
+          <td class="text-muted">{{ forloop.counter }}</td>
+          <td class="fw-semibold">{{ v.full_name }}</td>
+          <td>{{ v.phone }}</td>
+          <td>{{ v.location }}</td>
+          <td>{{ v.get_profession_display }}</td>
+          <td class="text-muted small">{{ v.skills|truncatechars:25 }}</td>
+          <td>
+            {% if v.assigned_camp %}
+              <span class="badge bg-success">{{ v.assigned_camp.name }}</span>
+            {% else %}
+              <span class="text-muted small">Unassigned</span>
+            {% endif %}
+          </td>
+          <td class="text-muted small">
+            {% if v.full_time %}Full Time
+            {% elif v.available_from %}{{ v.available_from|date:"d M" }} – {{ v.available_until|date:"d M"|default:"—" }}
+            {% else %}—{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-4 text-muted">
+    <i class="fas fa-hands-helping fa-2x mb-2 d-block opacity-25"></i>
+    No approved volunteers yet.
+  </div>
+  {% endif %}
+</div>
+
+<!-- Audit Log -->
+<div class="card p-4 border-0 shadow-sm mb-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h5 class="fw-bold mb-0">
+      <i class="fas fa-clipboard-list me-2 text-secondary"></i>System Audit Log
+    </h5>
+    <span class="badge bg-secondary">Latest 50 entries</span>
+  </div>
+  {% if audit_logs %}
+  <div class="table-responsive" style="max-height:400px;overflow-y:auto;">
+    <table class="table table-sm table-hover align-middle">
+      <thead class="table-dark sticky-top">
+        <tr>
+          <th>Timestamp</th><th>Action</th><th>Performed By</th>
+          <th>Target</th><th>Description</th><th>IP Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in audit_logs %}
+        <tr>
+          <td class="text-nowrap text-muted small">{{ log.timestamp|date:"d M Y H:i" }}</td>
+          <td>
+            {% if log.action == 'login' %}
+              <span class="badge bg-success">{{ log.get_action_display }}</span>
+            {% elif log.action == 'logout' %}
+              <span class="badge bg-secondary">{{ log.get_action_display }}</span>
+            {% elif log.action == 'approve_staff' or log.action == 'approve_volunteer' %}
+              <span class="badge bg-primary">{{ log.get_action_display }}</span>
+            {% elif log.action == 'reject_staff' %}
+              <span class="badge bg-danger">{{ log.get_action_display }}</span>
+            {% elif log.action == 'donate_money' or log.action == 'donate_item' %}
+              <span class="badge bg-warning text-dark">{{ log.get_action_display }}</span>
+            {% elif log.action == 'allocate_funds' %}
+              <span class="badge bg-info text-dark">{{ log.get_action_display }}</span>
+            {% else %}
+              <span class="badge bg-light text-dark border">{{ log.get_action_display }}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if log.performed_by %}
+              <strong>{{ log.performed_by.username }}</strong>
+              <span class="text-muted small">({{ log.performed_by.get_role_display }})</span>
+            {% else %}
+              <span class="text-muted">System</span>
+            {% endif %}
+          </td>
+          <td class="text-muted small">{{ log.target_user|default:"—" }}</td>
+          <td class="small">{{ log.description }}</td>
+          <td class="text-muted small">{{ log.ip_address|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-4 text-muted">
+    <i class="fas fa-clipboard fa-2x mb-2 d-block opacity-25"></i>
+    No audit entries yet. Logs will appear here as users perform actions.
+  </div>
+  {% endif %}
+</div>
+
 <!-- Quick Actions -->
 <div class="card p-4 border-0 shadow-sm mb-4">
   <h5 class="fw-bold mb-3">
     <i class="fas fa-bolt me-2 text-danger"></i>Quick Actions
   </h5>
   <div class="row g-2">
-    <div class="col-md-2">
-      <a href="/admin/camps/camp/add/" class="btn btn-outline-success w-100">
-        <i class="fas fa-plus me-1"></i>Add Camp
-      </a>
-    </div>
-    <div class="col-md-2">
-      <a href="/admin/camps/need/add/" class="btn btn-outline-warning w-100">
-        <i class="fas fa-plus me-1"></i>Add Need
-      </a>
-    </div>
     <div class="col-md-2">
       <a href="/admin/volunteers/volunteerprofile/" class="btn btn-outline-primary w-100">
         <i class="fas fa-user-check me-1"></i>Approve Volunteers
@@ -312,14 +832,54 @@
         <i class="fas fa-cog me-1"></i>Django Admin
       </a>
     </div>
-    <div class="col-md-2">
-      <a href="{% url 'allocate_funds' %}" class="btn btn-outline-warning w-100">
-        <i class="fas fa-rupee-sign me-1"></i>Allocate Funds
-      </a>
-    </div>
   </div>
 </div>
 
+</div>
+
+<!-- ── ID Proof Modal ── -->
+<div class="modal fade" id="proofModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header border-0 pb-0">
+        <div>
+          <h5 class="modal-title fw-bold mb-0">
+            <i class="fas fa-id-card me-2 text-primary"></i>ID Proof
+          </h5>
+          <p class="text-muted small mb-0" id="proofName"></p>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+          <a id="proofDownload" href="#" download class="btn btn-sm btn-outline-primary">
+            <i class="fas fa-download me-1"></i>Download
+          </a>
+          <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal">
+            <i class="fas fa-times me-1"></i>Close
+          </button>
+        </div>
+      </div>
+      <div class="modal-body text-center p-3">
+        <img id="proofImg" src="" alt="ID Proof"
+             class="img-fluid rounded shadow-sm"
+             style="max-height:520px;display:none;"
+             onerror="this.style.display='none';document.getElementById('proofFrame').style.display='block';">
+        <iframe id="proofFrame" src="" title="ID Proof Document"
+                style="width:100%;height:520px;border:none;display:none;"></iframe>
+        <div id="proofLoading" class="py-5 text-muted">
+          <i class="fas fa-spinner fa-spin fa-2x mb-3 d-block"></i>
+          Loading proof...
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-0 justify-content-between">
+        <span class="text-muted small">
+          <i class="fas fa-info-circle me-1"></i>
+          Review carefully before approving or rejecting.
+        </span>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -358,5 +918,28 @@
       plugins: { legend: { position: 'bottom' } }
     }
   });
+
+  function showProof(url, name) {
+    document.getElementById('proofImg').style.display     = 'none';
+    document.getElementById('proofFrame').style.display   = 'none';
+    document.getElementById('proofLoading').style.display = 'block';
+    document.getElementById('proofName').textContent      = name;
+    document.getElementById('proofDownload').href         = url;
+
+    const ext = url.split('.').pop().toLowerCase();
+    if (ext === 'pdf') {
+      document.getElementById('proofFrame').src           = url;
+      document.getElementById('proofFrame').style.display = 'block';
+      document.getElementById('proofLoading').style.display = 'none';
+    } else {
+      const img = document.getElementById('proofImg');
+      img.src = url;
+      img.onload = function () {
+        document.getElementById('proofLoading').style.display = 'none';
+        img.style.display = 'block';
+      };
+    }
+    new bootstrap.Modal(document.getElementById('proofModal')).show();
+  }
 </script>
 {% endblock %}

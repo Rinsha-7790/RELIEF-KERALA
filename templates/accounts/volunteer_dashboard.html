@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}Volunteer Dashboard{% endblock %}
+{% block content %}
+
+<div style="background: linear-gradient(135deg, #16a085, #27ae60); padding: 50px 0;">
+  <div class="container text-white">
+    <h1 class="fw-bold mb-1">
+      <i class="fas fa-hands-helping me-2"></i>Welcome, {{ volunteer_profile.full_name|default:request.user.username }}
+    </h1>
+    <p class="mb-0" style="opacity:0.9">Your volunteer workspace for coordinating relief efforts.</p>
+  </div>
+</div>
+
+<div class="container py-5">
+
+  {% if not volunteer_profile %}
+  <div class="alert alert-warning border-0 shadow-sm">
+    <h6 class="fw-bold mb-1"><i class="fas fa-exclamation-triangle me-1"></i>Profile Incomplete</h6>
+    <p class="mb-0 small">We couldn't find a volunteer profile linked to your account. Please contact an administrator.</p>
+  </div>
+
+  {% else %}
+
+  {% if not volunteer_profile.is_approved %}
+  <div class="alert alert-warning border-0 shadow-sm">
+    <h6 class="fw-bold mb-1"><i class="fas fa-clock me-1"></i>Pending Approval</h6>
+    <p class="mb-0 small">Your volunteer registration is awaiting approval. You'll be able to view camp needs once approved.</p>
+  </div>
+  {% endif %}
+
+  <!-- Profile + Camp summary -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="fw-bold mb-3"><i class="fas fa-user-circle me-2 text-success"></i>Your Profile</h5>
+          <div class="row g-2 small">
+            <div class="col-6"><span class="text-muted">Profession</span><div class="fw-semibold">{{ volunteer_profile.get_profession_display }}</div></div>
+            <div class="col-6"><span class="text-muted">Phone</span><div class="fw-semibold">{{ volunteer_profile.phone }}</div></div>
+            <div class="col-6"><span class="text-muted">Location</span><div class="fw-semibold">{{ volunteer_profile.location|default:"—" }}</div></div>
+            <div class="col-6"><span class="text-muted">Languages</span><div class="fw-semibold">{{ volunteer_profile.languages|default:"—" }}</div></div>
+            <div class="col-12"><span class="text-muted">Skills</span><div class="fw-semibold">{{ volunteer_profile.skills|default:"—" }}</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="fw-bold mb-3"><i class="fas fa-campground me-2 text-success"></i>Camp Assignment</h5>
+          {% if volunteer_profile.assigned_camp %}
+          <div class="small">
+            <span class="text-muted">Assigned Camp</span>
+            <div class="fw-semibold fs-5 text-success mb-1">{{ volunteer_profile.assigned_camp.name }}</div>
+            <span class="text-muted">Location</span>
+            <div class="fw-semibold">{{ volunteer_profile.assigned_camp.location|default:"—" }}</div>
+          </div>
+          {% else %}
+          <p class="text-muted small mb-0">You haven't been assigned to a camp yet. Check back once an administrator assigns you.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Camp needs -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 pt-4 px-4">
+      <h5 class="fw-bold mb-0"><i class="fas fa-list-check me-2 text-success"></i>Active Needs at Your Camp</h5>
+    </div>
+    <div class="card-body px-4 pb-4">
+      {% if camp_needs %}
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr class="text-muted small">
+              <th>Item</th>
+              <th>Needed</th>
+              <th>Received</th>
+              <th>Remaining</th>
+              <th>Priority</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for need in camp_needs %}
+            <tr>
+              <td class="fw-semibold">{{ need.item }}</td>
+              <td>{{ need.quantity_needed }} {{ need.unit }}</td>
+              <td>{{ need.quantity_received }} {{ need.unit }}</td>
+              <td>{{ need.remaining }} {{ need.unit }}</td>
+              <td>
+                {% if need.priority == 'urgent' %}
+                <span class="badge priority-urgent">Urgent</span>
+                {% elif need.priority == 'normal' %}
+                <span class="badge priority-normal">Normal</span>
+                {% else %}
+                <span class="badge priority-low">Low</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% elif volunteer_profile.assigned_camp %}
+      <p class="text-muted text-center py-4 mb-0">No active needs at your camp right now. Great job, things are under control!</p>
+      {% else %}
+      <p class="text-muted text-center py-4 mb-0">Camp needs will appear here once you're assigned to a camp.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {% endif %}
+
+</div>
+
+{% endblock %}

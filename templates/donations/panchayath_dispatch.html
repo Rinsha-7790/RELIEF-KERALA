@@ -6,41 +6,93 @@
   <a href="{% url 'panchayath_dashboard' %}" class="text-muted text-decoration-none small">
     <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
   </a>
+
   <div class="card border-0 shadow-sm mt-3">
     <div class="card-header bg-danger bg-opacity-10 border-0 pt-3">
       <h4 class="fw-bold mb-0 text-danger">
         <i class="fas fa-truck me-2"></i>Dispatch Items to Relief Camp
       </h4>
     </div>
+
     <div class="card-body">
+
+      <!-- Donation summary -->
       <div class="bg-light rounded p-3 mb-4 small">
         <div class="row g-2">
-          <div class="col-6"><span class="text-muted">Tracking ID:</span>
-            <strong class="ms-1 font-monospace">{{ donation.tracking_id }}</strong></div>
-          <div class="col-6"><span class="text-muted">Donor:</span>
-            <strong class="ms-1">{{ donation.donor_name }}</strong></div>
-          <div class="col-12"><span class="text-muted">Items:</span>
-            <span class="ms-1">{{ donation.item_name }} (Qty: {{ donation.quantity }})</span></div>
-          <div class="col-12"><span class="text-muted">Destination:</span>
-            <strong class="ms-1 text-danger">{{ donation.camp.name }}, {{ donation.camp.district }}</strong></div>
+          <div class="col-6">
+            <span class="text-muted">Tracking ID:</span>
+            <strong class="ms-1 font-monospace text-danger">{{ donation.tracking_id }}</strong>
+          </div>
+          <div class="col-6">
+            <span class="text-muted">Donor:</span>
+            <strong class="ms-1">{{ donation.donor_name }}</strong>
+          </div>
+          <div class="col-12">
+            <span class="text-muted">Item:</span>
+            <span class="ms-1">{{ donation.item_name }} (Qty: {{ donation.quantity }} {{ donation.unit }})</span>
+          </div>
+          <div class="col-12">
+            <span class="text-muted">Destination Camp:</span>
+            {% if donation.camp %}
+              <strong class="ms-1 text-danger">{{ donation.camp.name }}, {{ donation.camp.district }}</strong>
+            {% else %}
+              <span class="ms-1 badge bg-warning text-dark">
+                <i class="fas fa-exclamation-triangle me-1"></i>Not assigned — select below
+              </span>
+            {% endif %}
+          </div>
         </div>
       </div>
+
       <form method="post">
         {% csrf_token %}
+
+        <!-- ── CAMP SELECT — only shown for general (no-camp) donations ── -->
+        {% if not donation.camp %}
+        <div class="mb-4 p-3 border border-warning rounded" style="background:#fffbeb">
+          <label class="form-label fw-bold text-warning-emphasis">
+            <i class="fas fa-campground me-1"></i>Select Destination Camp
+            <span class="text-danger">*</span>
+          </label>
+          <p class="text-muted small mb-2">
+            This donation was made to the <strong>General Fund</strong> with no camp selected.
+            Choose which camp should receive these items before dispatching.
+          </p>
+          <select name="camp_id" class="form-select" required>
+            <option value="">— Select a relief camp —</option>
+            {% regroup camps by district as camps_by_district %}
+            {% for district_group in camps_by_district %}
+              <optgroup label="{{ district_group.grouper }}">
+                {% for camp in district_group.list %}
+                  <option value="{{ camp.id }}">{{ camp.name }} — {{ camp.district }}</option>
+                {% endfor %}
+              </optgroup>
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+
+        <!-- Dispatched by -->
         <div class="mb-3">
-          <label class="form-label fw-semibold">Dispatched By <span class="text-danger">*</span></label>
+          <label class="form-label fw-semibold">
+            Dispatched By <span class="text-danger">*</span>
+          </label>
           <input type="text" name="dispatched_by" class="form-control"
                  placeholder="Name of person handling the delivery" required>
         </div>
+
+        <!-- Notes -->
         <div class="mb-4">
           <label class="form-label fw-semibold">Notes (optional)</label>
           <textarea name="delivery_notes" class="form-control" rows="2"
                     placeholder="e.g. 2 cartons loaded, expected arrival by evening"></textarea>
         </div>
+
         <div class="alert alert-info border-0 small">
           <i class="fas fa-info-circle me-2"></i>
           Donor will see status updated to <strong>In Transit to Camp</strong> immediately.
         </div>
+
         <div class="d-flex gap-2">
           <button type="submit" class="btn btn-danger fw-semibold">
             <i class="fas fa-truck me-1"></i>Confirm Dispatch
@@ -48,6 +100,7 @@
           <a href="{% url 'panchayath_dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
         </div>
       </form>
+
     </div>
   </div>
 </div>

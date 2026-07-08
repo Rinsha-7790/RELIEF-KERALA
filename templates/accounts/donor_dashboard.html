@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% block title %}Donor Dashboard{% endblock %}
+{% block content %}
+
+<div style="background: linear-gradient(135deg, #e74c3c, #d35400); padding: 50px 0;">
+  <div class="container text-white">
+    <h1 class="fw-bold mb-1"><i class="fas fa-hand-holding-heart me-2"></i>Welcome, {{ request.user.first_name|default:request.user.username }}</h1>
+    <p class="mb-0" style="opacity:0.9">Here's a summary of your contributions to Relief Kerala.</p>
+  </div>
+</div>
+
+<div class="container py-5">
+
+  <!-- Summary cards -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div style="width:56px;height:56px;border-radius:14px;background:#fff5f5;display:flex;align-items:center;justify-content:center">
+            <i class="fas fa-rupee-sign fs-4 text-danger"></i>
+          </div>
+          <div>
+            <div class="text-muted small">Total Money Donated</div>
+            <div class="fs-4 fw-bold text-dark">₹{{ total_donated|floatformat:2 }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div style="width:56px;height:56px;border-radius:14px;background:#fff5f5;display:flex;align-items:center;justify-content:center">
+            <i class="fas fa-receipt fs-4 text-danger"></i>
+          </div>
+          <div>
+            <div class="text-muted small">Money Donations Made</div>
+            <div class="fs-4 fw-bold text-dark">{{ donation_count }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div style="width:56px;height:56px;border-radius:14px;background:#fff5f5;display:flex;align-items:center;justify-content:center">
+            <i class="fas fa-box-open fs-4 text-danger"></i>
+          </div>
+          <div>
+            <div class="text-muted small">Item Donations Made</div>
+            <div class="fs-4 fw-bold text-dark">{{ item_count }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="d-flex flex-wrap gap-3 mb-5">
+    <a href="{% url 'money_donate' %}" class="btn btn-donate"><i class="fas fa-rupee-sign me-2"></i>Donate Money</a>
+    <a href="{% url 'item_donate' %}" class="btn btn-outline-red"><i class="fas fa-box-open me-2"></i>Donate Items</a>
+  </div>
+
+  <!-- Money donations -->
+  <div class="card border-0 shadow-sm mb-5">
+    <div class="card-header bg-white border-0 pt-4 px-4">
+      <h5 class="fw-bold mb-0"><i class="fas fa-rupee-sign me-2 text-danger"></i>Your Money Donations</h5>
+    </div>
+    <div class="card-body px-4 pb-4">
+      {% if money_donations %}
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr class="text-muted small">
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Camp</th>
+              <th>Purpose</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for donation in money_donations %}
+            <tr>
+              <td>{{ donation.date|date:"d M Y, H:i" }}</td>
+              <td class="fw-semibold">₹{{ donation.amount|floatformat:2 }}</td>
+              <td>{{ donation.camp.name|default:"—" }}</td>
+              <td>{{ donation.purpose|default:"—" }}</td>
+              <td>
+                {% if donation.status == 'received' %}
+                <span class="badge bg-warning text-dark">Received</span>
+                {% elif donation.status == 'allocated' %}
+                <span class="badge bg-info text-dark">Allocated to Camp</span>
+                {% elif donation.status == 'spent' %}
+                <span class="badge bg-success">Spent</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted text-center py-4 mb-0">You haven't made any money donations yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Item donations -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 pt-4 px-4">
+      <h5 class="fw-bold mb-0"><i class="fas fa-box-open me-2 text-danger"></i>Your Item Donations</h5>
+    </div>
+    <div class="card-body px-4 pb-4">
+      {% if item_donations %}
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr class="text-muted small">
+              <th>Date</th>
+              <th>Item</th>
+              <th>Quantity</th>
+              <th>Camp</th>
+              <th>Tracking ID</th>
+              <th>Delivery Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for donation in item_donations %}
+            <tr>
+              <td>{{ donation.created_at|date:"d M Y, H:i" }}</td>
+              <td class="fw-semibold">{{ donation.item_name }}</td>
+              <td>{{ donation.quantity }} {{ donation.unit }}</td>
+              <td>{{ donation.camp.name|default:"—" }}</td>
+              <td><span class="badge bg-dark font-monospace">{{ donation.tracking_id }}</span></td>
+              <td>
+                {% if donation.delivery_status == 'delivered' %}
+                <span class="badge bg-success">Delivered</span>
+                {% elif donation.delivery_status == 'at_camp' %}
+                <span class="badge bg-info text-dark">Received at Camp</span>
+                {% elif donation.delivery_status == 'in_transit' %}
+                <span class="badge bg-primary">In Transit</span>
+                {% elif donation.delivery_status == 'at_panchayath' %}
+                <span class="badge bg-warning text-dark">At Panchayath</span>
+                {% else %}
+                <span class="badge bg-secondary">Registered</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted text-center py-4 mb-0">You haven't made any item donations yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
